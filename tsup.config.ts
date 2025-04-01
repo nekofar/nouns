@@ -12,7 +12,7 @@ export default defineConfig({
   outExtension({ format }) {
     return { js: format === 'esm' ? '.mjs' : '.cjs' }
   },
-  splitting: true,
+  splitting: false,
   clean: true,
   treeshake: true,
   external: [],
