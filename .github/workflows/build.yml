@@ -66,6 +66,9 @@ jobs:
       # This compiles the application in optimized production mode and output it to the build folder.
       - name: Build the application and export it
         run: pnpm run build
+        env:
+          SUBGRAPH_URL: ${{ secrets.SUBGRAPH_URL }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
 
       # Runs unit tests for the application using Jest.
       - name: Execute tests using Vitest
