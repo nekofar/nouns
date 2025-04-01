@@ -15,6 +15,6 @@ export default defineConfig({
   splitting: false,
   clean: true,
   treeshake: true,
-  external: [],
+  external: ['viem', 'wagmi', '@wagmi/core'],
   noExternal: [],
 })
