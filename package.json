@@ -17,6 +17,10 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./subgraphs": {
+      "import": "./dist/subgraphs/index.mjs",
+      "require": "./dist/subgraphs/index.cjs"
     }
   },
   "main": "./dist/index.cjs",
