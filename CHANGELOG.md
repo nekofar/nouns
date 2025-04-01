@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.2] - 2025-04-01
+
+### ⚙️ Miscellaneous Tasks
+
+- *(ci)* Add GitHub issue templates
+- *(workflows)* Add build, test, and release pipeline
+- *(git-flow)* Add Git Flow workflow for branch PR creation
+- *(dependabot)* Add configuration for dependency updates
+- *(ci)* Add funding configuration
+- *(stale)* Add GitHub Actions config for stale issues
+- *(build)* Add env vars for `SUBGRAPH_URL` and `ETHERSCAN_API_KEY`
+- *(package)* Update metadata in `package.json`
+- *(package)* Update metadata fields in `package.json`
+
 ## [1.0.0-alpha.1] - 2025-04-01
 
 ### 🚀 Features
