@@ -13,4 +13,9 @@
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.5.2",
   "private": false
+  "private": false,
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "typescript": "^5.8.2",
+  }
 }
