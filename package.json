@@ -32,17 +32,18 @@
     "LICENSE"
   ],
   "scripts": {
-    "prebuild": "pnpm clean && pnpm graphql:codegen",
+    "prebuild": "pnpm clean && pnpm graphql:generate && pnpm wagmi:generate",
     "build": "tsup",
     "clean": "rimraf dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "graphql:codegen": "graphql-codegen --config codegen.config.ts",
+    "graphql:generate": "graphql-codegen --config codegen.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "pnpm build",
     "prepublishOnly": "pnpm build",
-    "test": "echo 'No tests available.' && exit 0"
+    "test": "echo 'No tests available.' && exit 0",
+    "wagmi:generate": "wagmi generate"
   },
   "dependencies": {
     "graphql": "^16.10.0",
