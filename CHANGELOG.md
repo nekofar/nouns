@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.1] - 2025-04-01
+
+### 🚀 Features
+
+- *(contracts)* Add LilNouns contract abstractions
+- *(wagmi)* Add wagmi config with etherscan integration
+- *(tsup)* Add entry point for `contracts`
+- *(contracts)* Add new utility methods for LilNouns
+
+### 🐛 Bug Fixes
+
+- *(tsup)* Disable `splitting` in the build config
+
+### 📚 Documentation
+
+- *(readme)* Add project overview and badges
+
+### ⚙️ Miscellaneous Tasks
+
+- *(scripts)* Update build scripts for improved code generation
+
 ## [1.0.0-alpha.0] - 2025-04-01
 
 ### 🚀 Features
