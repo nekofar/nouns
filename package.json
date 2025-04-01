@@ -1,11 +1,19 @@
 {
   "name": "@nekofar/lilnouns",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "private": false,
-  "description": "",
+  "description": "TypeScript client for interacting with Lil Nouns",
   "keywords": [
     "lilnouns"
   ],
+  "homepage": "https://github.com/nekofar/lilnouns#readme",
+  "bugs": {
+    "url": "https://github.com/nekofar/lilnouns/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nekofar/lilnouns.git"
+  },
   "license": "Apache-2.0",
   "author": {
     "name": "Milad Nekofar",
@@ -40,7 +48,6 @@
     "graphql:generate": "graphql-codegen --config codegen.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "pnpm build",
     "prepublishOnly": "pnpm build",
     "test": "echo 'No tests available.' && exit 0",
     "wagmi:generate": "wagmi generate"
