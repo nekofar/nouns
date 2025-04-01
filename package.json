@@ -40,7 +40,6 @@
     "graphql:generate": "graphql-codegen --config codegen.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "pnpm build",
     "prepublishOnly": "pnpm build",
     "test": "echo 'No tests available.' && exit 0",
     "wagmi:generate": "wagmi generate"
@@ -84,5 +83,13 @@
   "packageManager": "pnpm@10.5.2",
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nekofar/lilnouns.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nekofar/lilnouns/issues"
+  },
+  "homepage": "https://github.com/nekofar/lilnouns#readme"
 }
