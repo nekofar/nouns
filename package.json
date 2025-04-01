@@ -11,13 +11,29 @@
     "name": "Milad Nekofar",
     "email": "milad@nekofar.com"
   },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "prebuild": "pnpm clean && pnpm graphql:codegen",
     "build": "tsup",
-    "graphql:codegen": "graphql-codegen --config codegen.config.ts",
     "clean": "rimraf dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "graphql:codegen": "graphql-codegen --config codegen.config.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "pnpm build",
