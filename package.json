@@ -2,10 +2,18 @@
   "name": "@nekofar/lilnouns",
   "version": "1.0.0-alpha.1",
   "private": false,
-  "description": "",
+  "description": "TypeScript client for interacting with Lil Nouns",
   "keywords": [
     "lilnouns"
   ],
+  "homepage": "https://github.com/nekofar/lilnouns#readme",
+  "bugs": {
+    "url": "https://github.com/nekofar/lilnouns/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nekofar/lilnouns.git"
+  },
   "license": "Apache-2.0",
   "author": {
     "name": "Milad Nekofar",
@@ -83,13 +91,5 @@
   "packageManager": "pnpm@10.5.2",
   "publishConfig": {
     "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nekofar/lilnouns.git"
-  },
-  "bugs": {
-    "url": "https://github.com/nekofar/lilnouns/issues"
-  },
-  "homepage": "https://github.com/nekofar/lilnouns#readme"
+  }
 }
