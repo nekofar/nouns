@@ -11,5 +11,6 @@
     "email": "milad@nekofar.com"
   },
   "license": "Apache-2.0",
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.5.2",
+  "private": false
 }
