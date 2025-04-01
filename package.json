@@ -12,7 +12,16 @@
     "email": "milad@nekofar.com"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "pnpm clean",
+    "build": "tsup",
+    "clean": "rimraf dist openapi.json",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "pnpm build",
+    "prepublishOnly": "pnpm build",
+    "test": "echo 'No tests available.' && exit 0"
   },
   "devDependencies": {
     "@types/node": "^22.13.14",
