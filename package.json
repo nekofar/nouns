@@ -1,18 +1,18 @@
 {
-  "name": "@nekofar/lilnouns",
-  "version": "1.0.0-alpha.2",
+  "name": "@nekofar/nouns",
+  "version": "1.0.0-alpha.0",
   "private": false,
   "description": "TypeScript client for interacting with Lil Nouns",
   "keywords": [
-    "lilnouns"
+    "nouns"
   ],
-  "homepage": "https://github.com/nekofar/lilnouns#readme",
+  "homepage": "https://github.com/nekofar/nouns#readme",
   "bugs": {
-    "url": "https://github.com/nekofar/lilnouns/issues"
+    "url": "https://github.com/nekofar/nouns/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nekofar/lilnouns.git"
+    "url": "git+https://github.com/nekofar/nouns.git"
   },
   "license": "Apache-2.0",
   "author": {
