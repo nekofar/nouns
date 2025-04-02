@@ -2,7 +2,7 @@
   "name": "@nekofar/nouns",
   "version": "1.0.0-alpha.0",
   "private": false,
-  "description": "TypeScript client for interacting with Lil Nouns",
+  "description": "TypeScript client for interacting with Nouns",
   "keywords": [
     "nouns"
   ],
