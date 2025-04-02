@@ -1,8 +1,7 @@
 import { defineConfig } from '@wagmi/cli'
-import { etherscan, react } from '@wagmi/cli/plugins'
+import { actions, etherscan, react } from '@wagmi/cli/plugins'
 import 'dotenv/config'
 import { mainnet, sepolia } from 'wagmi/chains'
-import { actions } from '@wagmi/cli/plugins'
 
 export default defineConfig({
   out: 'src/contracts/index.ts',
@@ -13,38 +12,45 @@ export default defineConfig({
       chainId: mainnet.id,
       contracts: [
         {
-          name: 'LilNounsGovernor',
+          name: 'NounsGovernor',
           address: {
-            [mainnet.id]: '0x5d2c31ce16924c2a71d317e5bbfd5ce387854039',
-            [sepolia.id]: '0xa7c37f79ff5e6f932147fc69724b6ed432ca6aa7',
+            [mainnet.id]: '0x6f3e6272a167e8accb32072d08e0957f9c79223d',
+            [sepolia.id]: '0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57',
           },
         },
         {
-          name: 'LilNounsTreasury',
+          name: 'NounsTreasury',
           address: {
-            [mainnet.id]: '0xd5f279ff9eb21c6d40c8f345a66f2751c4eea1fb',
-            [sepolia.id]: '0xe54f098b1880c536e0083720922b8a365fb403dc',
+            [mainnet.id]: '0xb1a32fc9f9d8b2cf86c068cae13108809547ef71',
+            [sepolia.id]: '0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28',
           },
         },
         {
-          name: 'LilNounsToken',
+          name: 'NounsData',
           address: {
-            [mainnet.id]: '0x4b10701bfd7bfedc47d50562b76b436fbb5bdb3b',
-            [sepolia.id]: '0x6e48e79f718776cf412a87e047722dbfda5b465d',
+            [mainnet.id]: '0xf790a5f59678dd733fb3de93493a91f472ca1365',
+            [sepolia.id]: '0x9040f720aa8a693f950b9cf94764b4b06079d002',
           },
         },
         {
-          name: 'LilNounsAuction',
+          name: 'NounsToken',
           address: {
-            [mainnet.id]: '0xa2587b1e2626904c8575640512b987bd3d3b592d',
-            [sepolia.id]: '0x0d8c4d18765ab8808ab6cee4d7a760e8b93ab20c',
+            [mainnet.id]: '0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03',
+            [sepolia.id]: '0x4c4674bb72a096855496a7204962297bd7e12b85',
           },
         },
         {
-          name: 'LilNounsDescriptor',
+          name: 'NounsAuction',
           address: {
-            [mainnet.id]: '0xb2a47999b3117c7dd628920ed8e77ebdfb948b68',
-            [sepolia.id]: '0x852f20f0140a4b5aa29c70bf39c9a85edc2b454e',
+            [mainnet.id]: '0x830bd73e4184cef73443c15111a1df14e495c706',
+            [sepolia.id]: '0x488609b7113fcf3b761a05956300d605e8f6bcaf',
+          },
+        },
+        {
+          name: 'NounsDescriptor',
+          address: {
+            [mainnet.id]: '0x33a9c445fb4fb21f2c030a6b2d3e2f12d017bfac',
+            [sepolia.id]: '0x79e04ebcdf1ac2661697b23844149b43acc002d5',
           },
         },
       ],
