@@ -1,15 +1,15 @@
 import {
+  createUseReadContract,
   createUseWriteContract,
   createUseSimulateContract,
   createUseWatchContractEvent,
-  createUseReadContract,
 } from 'wagmi/codegen'
 
 import {
+  createReadContract,
   createWriteContract,
   createSimulateContract,
   createWatchContractEvent,
-  createReadContract,
 } from 'wagmi/codegen'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,9 @@ export const nounsAuctionAbi = [
   {
     type: 'constructor',
     inputs: [
-      { name: 'logic', internalType: 'address', type: 'address' },
-      { name: 'admin', internalType: 'address', type: 'address' },
-      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: '_nouns', internalType: 'contract INounsToken', type: 'address' },
+      { name: '_weth', internalType: 'address', type: 'address' },
+      { name: '_duration', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
   },
@@ -35,90 +35,584 @@ export const nounsAuctionAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'previousAdmin',
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'sender',
         internalType: 'address',
         type: 'address',
         indexed: false,
       },
       {
-        name: 'newAdmin',
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'extended', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'AuctionBid',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+    ],
+    name: 'AuctionBidWithClientId',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'startTime',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'endTime',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'endTime',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionExtended',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'minBidIncrementPercentage',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionMinBidIncrementPercentageUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'reservePrice',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionReservePriceUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'winner',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionSettled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nounId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+    ],
+    name: 'AuctionSettledWithClientId',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'timeBuffer',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionTimeBufferUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
         internalType: 'address',
         type: 'address',
         indexed: false,
       },
     ],
-    name: 'AdminChanged',
+    name: 'Paused',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'beacon',
+        name: 'newSanctionsOracle',
         internalType: 'address',
         type: 'address',
-        indexed: true,
+        indexed: false,
       },
     ],
-    name: 'BeaconUpgraded',
+    name: 'SanctionsOracleSet',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'implementation',
+        name: 'account',
         internalType: 'address',
         type: 'address',
-        indexed: true,
+        indexed: false,
       },
     ],
-    name: 'Upgraded',
-  },
-  { type: 'fallback', stateMutability: 'payable' },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'admin',
-    outputs: [{ name: 'admin_', internalType: 'address', type: 'address' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'newAdmin', internalType: 'address', type: 'address' }],
-    name: 'changeAdmin',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    name: 'Unpaused',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'implementation',
+    name: 'MAX_TIME_BUFFER',
+    outputs: [{ name: '', internalType: 'uint56', type: 'uint56' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'auction',
     outputs: [
-      { name: 'implementation_', internalType: 'address', type: 'address' },
+      {
+        name: '',
+        internalType: 'struct INounsAuctionHouseV3.AuctionV2View',
+        type: 'tuple',
+        components: [
+          { name: 'nounId', internalType: 'uint96', type: 'uint96' },
+          { name: 'amount', internalType: 'uint128', type: 'uint128' },
+          { name: 'startTime', internalType: 'uint40', type: 'uint40' },
+          { name: 'endTime', internalType: 'uint40', type: 'uint40' },
+          { name: 'bidder', internalType: 'address payable', type: 'address' },
+          { name: 'settled', internalType: 'bool', type: 'bool' },
+        ],
+      },
     ],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [
-      { name: 'newImplementation', internalType: 'address', type: 'address' },
+    inputs: [],
+    name: 'auctionStorage',
+    outputs: [
+      { name: 'nounId', internalType: 'uint96', type: 'uint96' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+      { name: 'amount', internalType: 'uint128', type: 'uint128' },
+      { name: 'startTime', internalType: 'uint40', type: 'uint40' },
+      { name: 'endTime', internalType: 'uint40', type: 'uint40' },
+      { name: 'bidder', internalType: 'address payable', type: 'address' },
+      { name: 'settled', internalType: 'bool', type: 'bool' },
     ],
-    name: 'upgradeTo',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [
-      { name: 'newImplementation', internalType: 'address', type: 'address' },
-      { name: 'data', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'upgradeToAndCall',
+    inputs: [{ name: 'nounId', internalType: 'uint256', type: 'uint256' }],
+    name: 'biddingClient',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'nounId', internalType: 'uint256', type: 'uint256' }],
+    name: 'createBid',
     outputs: [],
     stateMutability: 'payable',
   },
-  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'nounId', internalType: 'uint256', type: 'uint256' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'createBid',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'duration',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'auctionCount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getPrices',
+    outputs: [{ name: 'prices', internalType: 'uint256[]', type: 'uint256[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'auctionCount', internalType: 'uint256', type: 'uint256' },
+      { name: 'skipEmptyValues', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'getSettlements',
+    outputs: [
+      {
+        name: 'settlements',
+        internalType: 'struct INounsAuctionHouseV3.Settlement[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'blockTimestamp', internalType: 'uint32', type: 'uint32' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          { name: 'winner', internalType: 'address', type: 'address' },
+          { name: 'nounId', internalType: 'uint256', type: 'uint256' },
+          { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'startId', internalType: 'uint256', type: 'uint256' },
+      { name: 'endId', internalType: 'uint256', type: 'uint256' },
+      { name: 'skipEmptyValues', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'getSettlements',
+    outputs: [
+      {
+        name: 'settlements',
+        internalType: 'struct INounsAuctionHouseV3.Settlement[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'blockTimestamp', internalType: 'uint32', type: 'uint32' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          { name: 'winner', internalType: 'address', type: 'address' },
+          { name: 'nounId', internalType: 'uint256', type: 'uint256' },
+          { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'startId', internalType: 'uint256', type: 'uint256' },
+      { name: 'endTimestamp', internalType: 'uint256', type: 'uint256' },
+      { name: 'skipEmptyValues', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'getSettlementsFromIdtoTimestamp',
+    outputs: [
+      {
+        name: 'settlements',
+        internalType: 'struct INounsAuctionHouseV3.Settlement[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'blockTimestamp', internalType: 'uint32', type: 'uint32' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          { name: 'winner', internalType: 'address', type: 'address' },
+          { name: 'nounId', internalType: 'uint256', type: 'uint256' },
+          { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_reservePrice', internalType: 'uint192', type: 'uint192' },
+      { name: '_timeBuffer', internalType: 'uint56', type: 'uint56' },
+      {
+        name: '_minBidIncrementPercentage',
+        internalType: 'uint8',
+        type: 'uint8',
+      },
+      {
+        name: '_sanctionsOracle',
+        internalType: 'contract IChainalysisSanctionsList',
+        type: 'address',
+      },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minBidIncrementPercentage',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nouns',
+    outputs: [
+      { name: '', internalType: 'contract INounsToken', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'paused',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'reservePrice',
+    outputs: [{ name: '', internalType: 'uint192', type: 'uint192' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'sanctionsOracle',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract IChainalysisSanctionsList',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_minBidIncrementPercentage',
+        internalType: 'uint8',
+        type: 'uint8',
+      },
+    ],
+    name: 'setMinBidIncrementPercentage',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'settlements',
+        internalType: 'struct INounsAuctionHouseV3.SettlementNoClientId[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'blockTimestamp', internalType: 'uint32', type: 'uint32' },
+          { name: 'amount', internalType: 'uint256', type: 'uint256' },
+          { name: 'winner', internalType: 'address', type: 'address' },
+          { name: 'nounId', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    name: 'setPrices',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_reservePrice', internalType: 'uint192', type: 'uint192' },
+    ],
+    name: 'setReservePrice',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newSanctionsOracle', internalType: 'address', type: 'address' },
+    ],
+    name: 'setSanctionsOracle',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_timeBuffer', internalType: 'uint56', type: 'uint56' }],
+    name: 'setTimeBuffer',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'settleAuction',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'settleCurrentAndCreateNewAuction',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'timeBuffer',
+    outputs: [{ name: '', internalType: 'uint56', type: 'uint56' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'unpause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'startId', internalType: 'uint256', type: 'uint256' },
+      { name: 'endId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'warmUpSettlementState',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'weth',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
 ] as const
 
 /**
@@ -151,10 +645,34 @@ export const nounsDataAbi = [
   {
     type: 'constructor',
     inputs: [
-      { name: '_logic', internalType: 'address', type: 'address' },
-      { name: '_data', internalType: 'bytes', type: 'bytes' },
+      { name: 'nounsToken_', internalType: 'address', type: 'address' },
+      { name: 'nounsDao_', internalType: 'address', type: 'address' },
     ],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
+  },
+  { type: 'error', inputs: [], name: 'AmountExceedsBalance' },
+  {
+    type: 'error',
+    inputs: [{ name: 'data', internalType: 'bytes', type: 'bytes' }],
+    name: 'FailedWithdrawingETH',
+  },
+  { type: 'error', inputs: [], name: 'InvalidSignature' },
+  { type: 'error', inputs: [], name: 'InvalidSupportValue' },
+  { type: 'error', inputs: [], name: 'MustBeDunaAdmin' },
+  { type: 'error', inputs: [], name: 'MustBeDunaAdminOrOwner' },
+  { type: 'error', inputs: [], name: 'MustBeNounerOrPaySufficientFee' },
+  { type: 'error', inputs: [], name: 'MustHaveVotes' },
+  { type: 'error', inputs: [], name: 'MustProvideActions' },
+  { type: 'error', inputs: [], name: 'OnlyProposerCanCreateUpdateCandidate' },
+  { type: 'error', inputs: [], name: 'ProposalInfoArityMismatch' },
+  { type: 'error', inputs: [], name: 'ProposalToUpdateMustBeUpdatable' },
+  { type: 'error', inputs: [], name: 'SlugAlreadyUsed' },
+  { type: 'error', inputs: [], name: 'SlugDoesNotExist' },
+  { type: 'error', inputs: [], name: 'TooManyActions' },
+  {
+    type: 'error',
+    inputs: [],
+    name: 'UpdateProposalCandidatesOnlyWorkWithProposalsBySigs',
   },
   {
     type: 'event',
@@ -193,6 +711,390 @@ export const nounsDataAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'msgSender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'proposer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'slug', internalType: 'string', type: 'string', indexed: false },
+      { name: 'support', internalType: 'uint8', type: 'uint8', indexed: false },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'CandidateFeedbackSent',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldCreateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newCreateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'CreateCandidateCostSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'message',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'relatedProposals',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'DunaAdminMessagePosted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldDunaAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newDunaAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'DunaAdminSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ETHWithdrawn',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldFeeRecipient',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newFeeRecipient',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'FeeRecipientSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'msgSender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'support', internalType: 'uint8', type: 'uint8', indexed: false },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'FeedbackSent',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'msgSender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'slug', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'ProposalCandidateCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'msgSender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'targets',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'values',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'signatures',
+        internalType: 'string[]',
+        type: 'string[]',
+        indexed: false,
+      },
+      {
+        name: 'calldatas',
+        internalType: 'bytes[]',
+        type: 'bytes[]',
+        indexed: false,
+      },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      { name: 'slug', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'proposalIdToUpdate',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'encodedProposalHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalCandidateCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'msgSender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'targets',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'values',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'signatures',
+        internalType: 'string[]',
+        type: 'string[]',
+        indexed: false,
+      },
+      {
+        name: 'calldatas',
+        internalType: 'bytes[]',
+        type: 'bytes[]',
+        indexed: false,
+      },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      { name: 'slug', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'proposalIdToUpdate',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'encodedProposalHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalCandidateUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      { name: 'signal', internalType: 'uint8', type: 'uint8', indexed: false },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalComplianceSignaled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'signer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'sig', internalType: 'bytes', type: 'bytes', indexed: false },
+      {
+        name: 'expirationTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'proposer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      { name: 'slug', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'proposalIdToUpdate',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'encodedPropHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'sigDigest',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'SignatureAdded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldUpdateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newUpdateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'UpdateCandidateCostSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'implementation',
         internalType: 'address',
         type: 'address',
@@ -201,8 +1103,324 @@ export const nounsDataAbi = [
     ],
     name: 'Upgraded',
   },
-  { type: 'fallback', stateMutability: 'payable' },
-  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'message',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'relatedProposals',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'VoterMessageToDunaAdminPosted',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'PRIOR_VOTES_BLOCKS_AGO',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'sig', internalType: 'bytes', type: 'bytes' },
+      { name: 'expirationTimestamp', internalType: 'uint256', type: 'uint256' },
+      { name: 'proposer', internalType: 'address', type: 'address' },
+      { name: 'slug', internalType: 'string', type: 'string' },
+      { name: 'proposalIdToUpdate', internalType: 'uint256', type: 'uint256' },
+      { name: 'encodedProp', internalType: 'bytes', type: 'bytes' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'addSignature',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'slug', internalType: 'string', type: 'string' }],
+    name: 'cancelProposalCandidate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'createCandidateCost',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'slug', internalType: 'string', type: 'string' },
+      { name: 'proposalIdToUpdate', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'createProposalCandidate',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'dunaAdmin',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'feeRecipient',
+    outputs: [{ name: '', internalType: 'address payable', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'admin', internalType: 'address', type: 'address' },
+      {
+        name: 'createCandidateCost_',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      {
+        name: 'updateCandidateCost_',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      {
+        name: 'feeRecipient_',
+        internalType: 'address payable',
+        type: 'address',
+      },
+      { name: 'dunaAdmin_', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nounsDao',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nounsToken',
+    outputs: [
+      { name: '', internalType: 'contract NounsTokenLike', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'message', internalType: 'string', type: 'string' },
+      {
+        name: 'relatedProposals',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'postDunaAdminMessage',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'message', internalType: 'string', type: 'string' },
+      {
+        name: 'relatedProposals',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'postVoterMessageToDunaAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'propCandidates',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposer', internalType: 'address', type: 'address' },
+      { name: 'slug', internalType: 'string', type: 'string' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'sendCandidateFeedback',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'sendFeedback',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newCreateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'setCreateCandidateCost',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newDunaAdmin', internalType: 'address', type: 'address' },
+    ],
+    name: 'setDunaAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newFeeRecipient',
+        internalType: 'address payable',
+        type: 'address',
+      },
+    ],
+    name: 'setFeeRecipient',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newUpdateCandidateCost',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'setUpdateCandidateCost',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'signal', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'signalProposalCompliance',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'updateCandidateCost',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'slug', internalType: 'string', type: 'string' },
+      { name: 'proposalIdToUpdate', internalType: 'uint256', type: 'uint256' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateProposalCandidate',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'withdrawETH',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
 ] as const
 
 /**
@@ -865,24 +2083,272 @@ export const nounsDescriptorConfig = {
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
 export const nounsGovernorAbi = [
+  { type: 'error', inputs: [], name: 'AdminOnly' },
+  { type: 'error', inputs: [], name: 'CanOnlyInitializeOnce' },
+  { type: 'error', inputs: [], name: 'InvalidNounsAddress' },
+  { type: 'error', inputs: [], name: 'InvalidTimelockAddress' },
+  { type: 'error', inputs: [], name: 'MustProvideActions' },
+  { type: 'error', inputs: [], name: 'ProposalInfoArityMismatch' },
+  { type: 'error', inputs: [], name: 'ProposerAlreadyHasALiveProposal' },
+  { type: 'error', inputs: [], name: 'TooManyActions' },
+  { type: 'error', inputs: [], name: 'UnsafeUint16Cast' },
+  { type: 'error', inputs: [], name: 'VotesBelowProposalThreshold' },
   {
-    type: 'constructor',
+    type: 'event',
+    anonymous: false,
     inputs: [
-      { name: 'timelock_', internalType: 'address', type: 'address' },
-      { name: 'nouns_', internalType: 'address', type: 'address' },
-      { name: 'vetoer_', internalType: 'address', type: 'address' },
-      { name: 'admin_', internalType: 'address', type: 'address' },
-      { name: 'implementation_', internalType: 'address', type: 'address' },
-      { name: 'votingPeriod_', internalType: 'uint256', type: 'uint256' },
-      { name: 'votingDelay_', internalType: 'uint256', type: 'uint256' },
       {
-        name: 'proposalThresholdBPS_',
+        name: 'numTokens',
         internalType: 'uint256',
         type: 'uint256',
+        indexed: false,
       },
-      { name: 'quorumVotesBPS_', internalType: 'uint256', type: 'uint256' },
+      { name: 'to', internalType: 'address', type: 'address', indexed: false },
     ],
-    stateMutability: 'nonpayable',
+    name: 'DAONounsSupplyIncreasedFromEscrow',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'tokenIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      { name: 'to', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'DAOWithdrawNounsFromEscrow',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldErc20Tokens',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'newErc20tokens',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'ERC20TokensToIncludeInForkSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'forkId', internalType: 'uint32', type: 'uint32', indexed: true },
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'proposalIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'EscrowedToFork',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'forkId', internalType: 'uint32', type: 'uint32', indexed: true },
+      {
+        name: 'forkTreasury',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'forkToken',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'forkEndTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'tokensInEscrow',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ExecuteFork',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldForkDAODeployer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'newForkDAODeployer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'ForkDAODeployerSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldForkPeriod',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newForkPeriod',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ForkPeriodSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldForkThreshold',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'newForkThreshold',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ForkThresholdSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'forkId', internalType: 'uint32', type: 'uint32', indexed: true },
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'proposalIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'reason',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'JoinFork',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldLastMinuteWindowInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'newLastMinuteWindowInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'LastMinuteWindowSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldMaxQuorumVotesBPS',
+        internalType: 'uint16',
+        type: 'uint16',
+        indexed: false,
+      },
+      {
+        name: 'newMaxQuorumVotesBPS',
+        internalType: 'uint16',
+        type: 'uint16',
+        indexed: false,
+      },
+    ],
+    name: 'MaxQuorumVotesBPSSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldMinQuorumVotesBPS',
+        internalType: 'uint16',
+        type: 'uint16',
+        indexed: false,
+      },
+      {
+        name: 'newMinQuorumVotesBPS',
+        internalType: 'uint16',
+        type: 'uint16',
+        indexed: false,
+      },
+    ],
+    name: 'MinQuorumVotesBPSSet',
   },
   {
     type: 'event',
@@ -908,25 +2374,6 @@ export const nounsGovernorAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'oldImplementation',
-        internalType: 'address',
-        type: 'address',
-        indexed: false,
-      },
-      {
-        name: 'newImplementation',
-        internalType: 'address',
-        type: 'address',
-        indexed: false,
-      },
-    ],
-    name: 'NewImplementation',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
         name: 'oldPendingAdmin',
         internalType: 'address',
         type: 'address',
@@ -946,6 +2393,25 @@ export const nounsGovernorAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'oldPendingVetoer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'newPendingVetoer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'NewPendingVetoer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'oldVetoer',
         internalType: 'address',
         type: 'address',
@@ -959,6 +2425,25 @@ export const nounsGovernorAbi = [
       },
     ],
     name: 'NewVetoer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldObjectionPeriodDurationInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'newObjectionPeriodDurationInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'ObjectionPeriodDurationSet',
   },
   {
     type: 'event',
@@ -1023,6 +2508,14 @@ export const nounsGovernorAbi = [
       },
     ],
     name: 'ProposalCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'ProposalCreatedOnTimelockV1',
   },
   {
     type: 'event',
@@ -1097,8 +2590,86 @@ export const nounsGovernorAbi = [
     anonymous: false,
     inputs: [
       { name: 'id', internalType: 'uint256', type: 'uint256', indexed: false },
+      {
+        name: 'signers',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'updatePeriodEndBlock',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'proposalThreshold',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'quorumVotes',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+    ],
+    name: 'ProposalCreatedWithRequirements',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: true },
+      {
+        name: 'proposer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'updateMessage',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalDescriptionUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: false },
     ],
     name: 'ProposalExecuted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: true },
+      {
+        name: 'objectionPeriodEndBlock',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalObjectionPeriodSet',
   },
   {
     type: 'event',
@@ -1132,9 +2703,141 @@ export const nounsGovernorAbi = [
     type: 'event',
     anonymous: false,
     inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: true },
+      {
+        name: 'proposer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'targets',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'values',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'signatures',
+        internalType: 'string[]',
+        type: 'string[]',
+        indexed: false,
+      },
+      {
+        name: 'calldatas',
+        internalType: 'bytes[]',
+        type: 'bytes[]',
+        indexed: false,
+      },
+      {
+        name: 'updateMessage',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalTransactionsUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldProposalUpdatablePeriodInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'newProposalUpdatablePeriodInBlocks',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalUpdatablePeriodSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'uint256', type: 'uint256', indexed: true },
+      {
+        name: 'proposer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'targets',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+      {
+        name: 'values',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+      {
+        name: 'signatures',
+        internalType: 'string[]',
+        type: 'string[]',
+        indexed: false,
+      },
+      {
+        name: 'calldatas',
+        internalType: 'bytes[]',
+        type: 'bytes[]',
+        indexed: false,
+      },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'updateMessage',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       { name: 'id', internalType: 'uint256', type: 'uint256', indexed: false },
     ],
     name: 'ProposalVetoed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'oldQuorumCoefficient',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'newQuorumCoefficient',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'QuorumCoefficientSet',
   },
   {
     type: 'event',
@@ -1154,6 +2857,70 @@ export const nounsGovernorAbi = [
       },
     ],
     name: 'QuorumVotesBPSSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'refundAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'refundSent',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+    ],
+    name: 'RefundableVote',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'signer',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'sig', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'SignatureCancelled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'timelock',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'timelockV1',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'TimelocksAndAdminSet',
   },
   {
     type: 'event',
@@ -1186,6 +2953,31 @@ export const nounsGovernorAbi = [
       },
     ],
     name: 'VoteCast',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'proposalId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+    ],
+    name: 'VoteCastWithClientId',
   },
   {
     type: 'event',
@@ -1225,15 +3017,89 @@ export const nounsGovernorAbi = [
     ],
     name: 'VotingPeriodSet',
   },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'sent', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'Withdraw',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'forkId', internalType: 'uint32', type: 'uint32', indexed: true },
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenIds',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'WithdrawFromForkEscrow',
+  },
   { type: 'fallback', stateMutability: 'payable' },
   {
     type: 'function',
-    inputs: [
-      { name: 'implementation_', internalType: 'address', type: 'address' },
-    ],
-    name: '_setImplementation',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    inputs: [],
+    name: 'MAX_PROPOSAL_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_VOTING_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_VOTING_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_PROPOSAL_THRESHOLD_BPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_VOTING_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_VOTING_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'adjustedTotalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -1244,17 +3110,911 @@ export const nounsGovernorAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'cancel',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'sig', internalType: 'bytes', type: 'bytes' }],
+    name: 'cancelSig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'castRefundableVote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'castRefundableVote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'castRefundableVoteWithReason',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'castRefundableVoteWithReason',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'castVote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'v', internalType: 'uint8', type: 'uint8' },
+      { name: 'r', internalType: 'bytes32', type: 'bytes32' },
+      { name: 's', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'castVoteBySig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'support', internalType: 'uint8', type: 'uint8' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'castVoteWithReason',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'againstVotes', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'adjustedTotalSupply_',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      {
+        name: 'params',
+        internalType: 'struct NounsDAOTypes.DynamicQuorumParams',
+        type: 'tuple',
+        components: [
+          { name: 'minQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'maxQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'quorumCoefficient', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    name: 'dynamicQuorumVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
     inputs: [],
-    name: 'implementation',
+    name: 'erc20TokensToIncludeInFork',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'proposalIds', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'escrowToFork',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'execute',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'executeFork',
+    outputs: [
+      { name: 'forkTreasury', internalType: 'address', type: 'address' },
+      { name: 'forkToken', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkDAODeployer',
+    outputs: [
+      { name: '', internalType: 'contract IForkDAODeployer', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkEndTimestamp',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkEscrow',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract INounsDAOForkEscrow',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'forkThresholdBPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getActions',
+    outputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'blockNumber_', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getDynamicQuorumParamsAt',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.DynamicQuorumParams',
+        type: 'tuple',
+        components: [
+          { name: 'minQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'maxQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'quorumCoefficient', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'voter', internalType: 'address', type: 'address' },
+    ],
+    name: 'getReceipt',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.Receipt',
+        type: 'tuple',
+        components: [
+          { name: 'hasVoted', internalType: 'bool', type: 'bool' },
+          { name: 'support', internalType: 'uint8', type: 'uint8' },
+          { name: 'votes', internalType: 'uint96', type: 'uint96' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'timelock_', internalType: 'address', type: 'address' },
+      { name: 'nouns_', internalType: 'address', type: 'address' },
+      { name: 'forkEscrow_', internalType: 'address', type: 'address' },
+      { name: 'forkDAODeployer_', internalType: 'address', type: 'address' },
+      { name: 'vetoer_', internalType: 'address', type: 'address' },
+      {
+        name: 'daoParams_',
+        internalType: 'struct NounsDAOTypes.NounsDAOParams',
+        type: 'tuple',
+        components: [
+          { name: 'votingPeriod', internalType: 'uint256', type: 'uint256' },
+          { name: 'votingDelay', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'proposalThresholdBPS',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          {
+            name: 'lastMinuteWindowInBlocks',
+            internalType: 'uint32',
+            type: 'uint32',
+          },
+          {
+            name: 'objectionPeriodDurationInBlocks',
+            internalType: 'uint32',
+            type: 'uint32',
+          },
+          {
+            name: 'proposalUpdatablePeriodInBlocks',
+            internalType: 'uint32',
+            type: 'uint32',
+          },
+        ],
+      },
+      {
+        name: 'dynamicQuorumParams_',
+        internalType: 'struct NounsDAOTypes.DynamicQuorumParams',
+        type: 'tuple',
+        components: [
+          { name: 'minQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'maxQuorumVotesBPS', internalType: 'uint16', type: 'uint16' },
+          { name: 'quorumCoefficient', internalType: 'uint32', type: 'uint32' },
+        ],
+      },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'proposalIds', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'reason', internalType: 'string', type: 'string' },
+    ],
+    name: 'joinFork',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastMinuteWindowInBlocks',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'latestProposalIds',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'maxQuorumVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minQuorumVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nouns',
+    outputs: [
+      { name: '', internalType: 'contract NounsTokenLike', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'numTokensInForkEscrow',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'objectionPeriodDurationInBlocks',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pendingVetoer',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'pendingAdmin',
+    name: 'proposalCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'firstProposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'lastProposalId', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'proposalEligibilityQuorumBps',
+        internalType: 'uint16',
+        type: 'uint16',
+      },
+      { name: 'excludeCanceled', internalType: 'bool', type: 'bool' },
+      { name: 'requireVotingEnded', internalType: 'bool', type: 'bool' },
+      { name: 'votingClientIds', internalType: 'uint32[]', type: 'uint32[]' },
+    ],
+    name: 'proposalDataForRewards',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.ProposalForRewards[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'endBlock', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'objectionPeriodEndBlock',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'forVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'againstVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'abstainVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'totalSupply', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'creationTimestamp',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+          {
+            name: 'voteData',
+            internalType: 'struct NounsDAOTypes.ClientVoteData[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'votes', internalType: 'uint32', type: 'uint32' },
+              { name: 'txs', internalType: 'uint32', type: 'uint32' },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalMaxOperations',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalThresholdBPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalUpdatablePeriodInBlocks',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'proposals',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.ProposalCondensedV2',
+        type: 'tuple',
+        components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'proposer', internalType: 'address', type: 'address' },
+          {
+            name: 'proposalThreshold',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'quorumVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'eta', internalType: 'uint256', type: 'uint256' },
+          { name: 'startBlock', internalType: 'uint256', type: 'uint256' },
+          { name: 'endBlock', internalType: 'uint256', type: 'uint256' },
+          { name: 'forVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'againstVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'abstainVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'canceled', internalType: 'bool', type: 'bool' },
+          { name: 'vetoed', internalType: 'bool', type: 'bool' },
+          { name: 'executed', internalType: 'bool', type: 'bool' },
+          { name: 'totalSupply', internalType: 'uint256', type: 'uint256' },
+          { name: 'creationBlock', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'proposalsV3',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.ProposalCondensedV3',
+        type: 'tuple',
+        components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'proposer', internalType: 'address', type: 'address' },
+          {
+            name: 'proposalThreshold',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'quorumVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'eta', internalType: 'uint256', type: 'uint256' },
+          { name: 'startBlock', internalType: 'uint256', type: 'uint256' },
+          { name: 'endBlock', internalType: 'uint256', type: 'uint256' },
+          { name: 'forVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'againstVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'abstainVotes', internalType: 'uint256', type: 'uint256' },
+          { name: 'canceled', internalType: 'bool', type: 'bool' },
+          { name: 'vetoed', internalType: 'bool', type: 'bool' },
+          { name: 'executed', internalType: 'bool', type: 'bool' },
+          { name: 'totalSupply', internalType: 'uint256', type: 'uint256' },
+          { name: 'creationBlock', internalType: 'uint256', type: 'uint256' },
+          { name: 'signers', internalType: 'address[]', type: 'address[]' },
+          {
+            name: 'updatePeriodEndBlock',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          {
+            name: 'objectionPeriodEndBlock',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'executeOnTimelockV1', internalType: 'bool', type: 'bool' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'propose',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+    ],
+    name: 'propose',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'proposerSignatures',
+        internalType: 'struct NounsDAOTypes.ProposerSignature[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'sig', internalType: 'bytes', type: 'bytes' },
+          { name: 'signer', internalType: 'address', type: 'address' },
+          {
+            name: 'expirationTimestamp',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+        ],
+      },
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+    ],
+    name: 'proposeBySigs',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'proposerSignatures',
+        internalType: 'struct NounsDAOTypes.ProposerSignature[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'sig', internalType: 'bytes', type: 'bytes' },
+          { name: 'signer', internalType: 'address', type: 'address' },
+          {
+            name: 'expirationTimestamp',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+        ],
+      },
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'proposeBySigs',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+    ],
+    name: 'proposeOnTimelockV1',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'proposeOnTimelockV1',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'queue',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'quorumParamsCheckpoints',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.DynamicQuorumParamsCheckpoint[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'fromBlock', internalType: 'uint32', type: 'uint32' },
+          {
+            name: 'params',
+            internalType: 'struct NounsDAOTypes.DynamicQuorumParams',
+            type: 'tuple',
+            components: [
+              {
+                name: 'minQuorumVotesBPS',
+                internalType: 'uint16',
+                type: 'uint16',
+              },
+              {
+                name: 'maxQuorumVotesBPS',
+                internalType: 'uint16',
+                type: 'uint16',
+              },
+              {
+                name: 'quorumCoefficient',
+                internalType: 'uint32',
+                type: 'uint32',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'index', internalType: 'uint256', type: 'uint256' }],
+    name: 'quorumParamsCheckpoints',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct NounsDAOTypes.DynamicQuorumParamsCheckpoint',
+        type: 'tuple',
+        components: [
+          { name: 'fromBlock', internalType: 'uint32', type: 'uint32' },
+          {
+            name: 'params',
+            internalType: 'struct NounsDAOTypes.DynamicQuorumParams',
+            type: 'tuple',
+            components: [
+              {
+                name: 'minQuorumVotesBPS',
+                internalType: 'uint16',
+                type: 'uint16',
+              },
+              {
+                name: 'maxQuorumVotesBPS',
+                internalType: 'uint16',
+                type: 'uint16',
+              },
+              {
+                name: 'quorumCoefficient',
+                internalType: 'uint32',
+                type: 'uint32',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'quorumVotes',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'quorumVotesBPS',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'state',
+    outputs: [
+      {
+        name: '',
+        internalType: 'enum NounsDAOTypes.ProposalState',
+        type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'timelock',
+    outputs: [
+      { name: '', internalType: 'contract INounsDAOExecutor', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'timelockV1',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'updateMessage', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'proposerSignatures',
+        internalType: 'struct NounsDAOTypes.ProposerSignature[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'sig', internalType: 'bytes', type: 'bytes' },
+          { name: 'signer', internalType: 'address', type: 'address' },
+          {
+            name: 'expirationTimestamp',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+        ],
+      },
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'updateMessage', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateProposalBySigs',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'description', internalType: 'string', type: 'string' },
+      { name: 'updateMessage', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateProposalDescription',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalId', internalType: 'uint256', type: 'uint256' },
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'signatures', internalType: 'string[]', type: 'string[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: 'updateMessage', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateProposalTransactions',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'proposalId', internalType: 'uint256', type: 'uint256' }],
+    name: 'veto',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'vetoer',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'voteSnapshotBlockSwitchProposalId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'votingDelay',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'votingPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'to', internalType: 'address', type: 'address' },
+    ],
+    name: 'withdrawDAONounsFromEscrowIncreasingTotalSupply',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'withdrawDAONounsFromEscrowToTreasury',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenIds', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'withdrawFromForkEscrow',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   { type: 'receive', stateMutability: 'payable' },
 ] as const
@@ -1994,14 +4754,7 @@ export const nounsTokenConfig = {
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
  */
 export const nounsTreasuryAbi = [
-  {
-    type: 'constructor',
-    inputs: [
-      { name: 'logic', internalType: 'address', type: 'address' },
-      { name: 'data', internalType: 'bytes', type: 'bytes' },
-    ],
-    stateMutability: 'nonpayable',
-  },
+  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   {
     type: 'event',
     anonymous: false,
@@ -2039,6 +4792,178 @@ export const nounsTreasuryAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'txHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'target',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'signature',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      { name: 'data', internalType: 'bytes', type: 'bytes', indexed: false },
+      { name: 'eta', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'CancelTransaction',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'erc20Token',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ERC20Sent',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ETHSent',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'txHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'target',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'signature',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      { name: 'data', internalType: 'bytes', type: 'bytes', indexed: false },
+      { name: 'eta', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'ExecuteTransaction',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'NewAdmin',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newDelay',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'NewDelay',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newPendingAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'NewPendingAdmin',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'txHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'target',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'signature',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      { name: 'data', internalType: 'bytes', type: 'bytes', indexed: false },
+      { name: 'eta', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'QueueTransaction',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'implementation',
         internalType: 'address',
         type: 'address',
@@ -2048,6 +4973,174 @@ export const nounsTreasuryAbi = [
     name: 'Upgraded',
   },
   { type: 'fallback', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'GRACE_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAXIMUM_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MINIMUM_DELAY',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'NAME',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'acceptAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'admin',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'target', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'signature', internalType: 'string', type: 'string' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: 'eta', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'cancelTransaction',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'delay',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'target', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'signature', internalType: 'string', type: 'string' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: 'eta', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'executeTransaction',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'admin_', internalType: 'address', type: 'address' },
+      { name: 'delay_', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pendingAdmin',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'target', internalType: 'address', type: 'address' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+      { name: 'signature', internalType: 'string', type: 'string' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+      { name: 'eta', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'queueTransaction',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'queuedTransactions',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'recipient', internalType: 'address', type: 'address' },
+      { name: 'erc20Token', internalType: 'address', type: 'address' },
+      { name: 'tokensToSend', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'sendERC20',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'recipient', internalType: 'address payable', type: 'address' },
+      { name: 'ethToSend', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'sendETH',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'delay_', internalType: 'uint256', type: 'uint256' }],
+    name: 'setDelay',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'pendingAdmin_', internalType: 'address', type: 'address' },
+    ],
+    name: 'setPendingAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
   { type: 'receive', stateMutability: 'payable' },
 ] as const
 
@@ -2074,6 +5167,220 @@ export const nounsTreasuryConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuction = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"MAX_TIME_BUFFER"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionMaxTimeBuffer =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'MAX_TIME_BUFFER',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"auction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionAuction = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'auction',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"auctionStorage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionAuctionStorage =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'auctionStorage',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"biddingClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionBiddingClient =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'biddingClient',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"duration"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionDuration = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'duration',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getPrices"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionGetPrices = /*#__PURE__*/ createUseReadContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'getPrices',
+  },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getSettlements"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionGetSettlements =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'getSettlements',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getSettlementsFromIdtoTimestamp"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionGetSettlementsFromIdtoTimestamp =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'getSettlementsFromIdtoTimestamp',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"minBidIncrementPercentage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionMinBidIncrementPercentage =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'minBidIncrementPercentage',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"nouns"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionNouns = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'nouns',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionOwner = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionPaused = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'paused',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"reservePrice"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionReservePrice =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'reservePrice',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"sanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionSanctionsOracle =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'sanctionsOracle',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"timeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionTimeBuffer =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'timeBuffer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"weth"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useReadNounsAuctionWeth = /*#__PURE__*/ createUseReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'weth',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
@@ -2085,67 +5392,185 @@ export const useWriteNounsAuction = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"admin"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"createBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWriteNounsAuctionAdmin = /*#__PURE__*/ createUseWriteContract({
+export const useWriteNounsAuctionCreateBid =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'createBid',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionPause = /*#__PURE__*/ createUseWriteContract({
   abi: nounsAuctionAbi,
   address: nounsAuctionAddress,
-  functionName: 'admin',
+  functionName: 'pause',
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"changeAdmin"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"renounceOwnership"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWriteNounsAuctionChangeAdmin =
+export const useWriteNounsAuctionRenounceOwnership =
   /*#__PURE__*/ createUseWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'changeAdmin',
+    functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setMinBidIncrementPercentage"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWriteNounsAuctionImplementation =
+export const useWriteNounsAuctionSetMinBidIncrementPercentage =
   /*#__PURE__*/ createUseWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'implementation',
+    functionName: 'setMinBidIncrementPercentage',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeTo"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setPrices"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWriteNounsAuctionUpgradeTo =
+export const useWriteNounsAuctionSetPrices =
   /*#__PURE__*/ createUseWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeTo',
+    functionName: 'setPrices',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setReservePrice"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWriteNounsAuctionUpgradeToAndCall =
+export const useWriteNounsAuctionSetReservePrice =
   /*#__PURE__*/ createUseWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeToAndCall',
+    functionName: 'setReservePrice',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setSanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionSetSanctionsOracle =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setSanctionsOracle',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setTimeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionSetTimeBuffer =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setTimeBuffer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionSettleAuction =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleAuction',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleCurrentAndCreateNewAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionSettleCurrentAndCreateNewAuction =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleCurrentAndCreateNewAuction',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionUnpause = /*#__PURE__*/ createUseWriteContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'unpause',
+  },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"warmUpSettlementState"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWriteNounsAuctionWarmUpSettlementState =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'warmUpSettlementState',
   })
 
 /**
@@ -2160,68 +5585,185 @@ export const useSimulateNounsAuction = /*#__PURE__*/ createUseSimulateContract({
 })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"admin"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"createBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useSimulateNounsAuctionAdmin =
+export const useSimulateNounsAuctionCreateBid =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'admin',
+    functionName: 'createBid',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"changeAdmin"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"initialize"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useSimulateNounsAuctionChangeAdmin =
+export const useSimulateNounsAuctionInitialize =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'changeAdmin',
+    functionName: 'initialize',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"pause"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useSimulateNounsAuctionImplementation =
+export const useSimulateNounsAuctionPause =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'implementation',
+    functionName: 'pause',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeTo"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"renounceOwnership"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useSimulateNounsAuctionUpgradeTo =
+export const useSimulateNounsAuctionRenounceOwnership =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeTo',
+    functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setMinBidIncrementPercentage"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useSimulateNounsAuctionUpgradeToAndCall =
+export const useSimulateNounsAuctionSetMinBidIncrementPercentage =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeToAndCall',
+    functionName: 'setMinBidIncrementPercentage',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setPrices"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSetPrices =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setPrices',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setReservePrice"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSetReservePrice =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setReservePrice',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setSanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSetSanctionsOracle =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setSanctionsOracle',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setTimeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSetTimeBuffer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setTimeBuffer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSettleAuction =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleAuction',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleCurrentAndCreateNewAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionSettleCurrentAndCreateNewAuction =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleCurrentAndCreateNewAuction',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionUnpause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'unpause',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"warmUpSettlementState"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useSimulateNounsAuctionWarmUpSettlementState =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'warmUpSettlementState',
   })
 
 /**
@@ -2237,42 +5779,809 @@ export const useWatchNounsAuctionEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AdminChanged"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWatchNounsAuctionAdminChangedEvent =
+export const useWatchNounsAuctionAuctionBidEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'AdminChanged',
+    eventName: 'AuctionBid',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"BeaconUpgraded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionBidWithClientId"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWatchNounsAuctionBeaconUpgradedEvent =
+export const useWatchNounsAuctionAuctionBidWithClientIdEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'BeaconUpgraded',
+    eventName: 'AuctionBidWithClientId',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Upgraded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionCreated"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const useWatchNounsAuctionUpgradedEvent =
+export const useWatchNounsAuctionAuctionCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'Upgraded',
+    eventName: 'AuctionCreated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionExtended"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionExtendedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionExtended',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionMinBidIncrementPercentageUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionMinBidIncrementPercentageUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionMinBidIncrementPercentageUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionReservePriceUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionReservePriceUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionReservePriceUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionSettled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionSettledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionSettled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionSettledWithClientId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionSettledWithClientIdEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionSettledWithClientId',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionTimeBufferUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionAuctionTimeBufferUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionTimeBufferUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionPausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'Paused',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"SanctionsOracleSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionSanctionsOracleSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'SanctionsOracleSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Unpaused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const useWatchNounsAuctionUnpausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsData = /*#__PURE__*/ createUseReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"PRIOR_VOTES_BLOCKS_AGO"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataPriorVotesBlocksAgo =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'PRIOR_VOTES_BLOCKS_AGO',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataCreateCandidateCost =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"dunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataDunaAdmin = /*#__PURE__*/ createUseReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'dunaAdmin',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"feeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataFeeRecipient = /*#__PURE__*/ createUseReadContract(
+  {
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'feeRecipient',
+  },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"nounsDao"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataNounsDao = /*#__PURE__*/ createUseReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'nounsDao',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"nounsToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataNounsToken = /*#__PURE__*/ createUseReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'nounsToken',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataOwner = /*#__PURE__*/ createUseReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"propCandidates"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataPropCandidates =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'propCandidates',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useReadNounsDataUpdateCandidateCost =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsData = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"addSignature"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataAddSignature =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'addSignature',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"cancelProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataCancelProposalCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'cancelProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataCreateProposalCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataInitialize = /*#__PURE__*/ createUseWriteContract(
+  { abi: nounsDataAbi, address: nounsDataAddress, functionName: 'initialize' },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postDunaAdminMessage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataPostDunaAdminMessage =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postDunaAdminMessage',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postVoterMessageToDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataPostVoterMessageToDunaAdmin =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postVoterMessageToDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendCandidateFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSendCandidateFeedback =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendCandidateFeedback',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSendFeedback =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendFeedback',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setCreateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSetCreateCandidateCost =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setCreateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSetDunaAdmin =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setFeeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSetFeeRecipient =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setFeeRecipient',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setUpdateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSetUpdateCandidateCost =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setUpdateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"signalProposalCompliance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataSignalProposalCompliance =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'signalProposalCompliance',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataUpdateProposalCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataUpgradeTo = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"withdrawETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWriteNounsDataWithdrawEth =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'withdrawETH',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsData = /*#__PURE__*/ createUseSimulateContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"addSignature"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataAddSignature =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'addSignature',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"cancelProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataCancelProposalCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'cancelProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataCreateProposalCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postDunaAdminMessage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataPostDunaAdminMessage =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postDunaAdminMessage',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postVoterMessageToDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataPostVoterMessageToDunaAdmin =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postVoterMessageToDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendCandidateFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSendCandidateFeedback =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendCandidateFeedback',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSendFeedback =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendFeedback',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setCreateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSetCreateCandidateCost =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setCreateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSetDunaAdmin =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setFeeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSetFeeRecipient =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setFeeRecipient',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setUpdateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSetUpdateCandidateCost =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setUpdateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"signalProposalCompliance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataSignalProposalCompliance =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'signalProposalCompliance',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataUpdateProposalCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataUpgradeTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"withdrawETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useSimulateNounsDataWithdrawEth =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'withdrawETH',
   })
 
 /**
@@ -2312,6 +6621,188 @@ export const useWatchNounsDataBeaconUpgradedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"CandidateFeedbackSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataCandidateFeedbackSentEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'CandidateFeedbackSent',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"CreateCandidateCostSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataCreateCandidateCostSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'CreateCandidateCostSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"DunaAdminMessagePosted"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataDunaAdminMessagePostedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'DunaAdminMessagePosted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"DunaAdminSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataDunaAdminSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'DunaAdminSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ETHWithdrawn"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataEthWithdrawnEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ETHWithdrawn',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"FeeRecipientSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataFeeRecipientSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'FeeRecipientSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"FeedbackSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataFeedbackSentEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'FeedbackSent',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateCanceled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataProposalCandidateCanceledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateCanceled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateCreated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataProposalCandidateCreatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateCreated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataProposalCandidateUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalComplianceSignaled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataProposalComplianceSignaledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalComplianceSignaled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"SignatureAdded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataSignatureAddedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'SignatureAdded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"UpdateCandidateCostSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataUpdateCandidateCostSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'UpdateCandidateCostSet',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"Upgraded"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
@@ -2322,6 +6813,19 @@ export const useWatchNounsDataUpgradedEvent =
     abi: nounsDataAbi,
     address: nounsDataAddress,
     eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"VoterMessageToDunaAdminPosted"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const useWatchNounsDataVoterMessageToDunaAdminPostedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'VoterMessageToDunaAdminPosted',
   })
 
 /**
@@ -3498,6 +8002,97 @@ export const useReadNounsGovernor = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_PROPOSAL_THRESHOLD_BPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMaxProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_VOTING_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMaxVotingDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_VOTING_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_VOTING_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMaxVotingPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_PROPOSAL_THRESHOLD_BPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMinProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_VOTING_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMinVotingDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_VOTING_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_VOTING_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMinVotingPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"adjustedTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorAdjustedTotalSupply =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'adjustedTotalSupply',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"admin"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3510,29 +8105,482 @@ export const useReadNounsGovernorAdmin = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"dynamicQuorumVotes"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const useReadNounsGovernorImplementation =
+export const useReadNounsGovernorDynamicQuorumVotes =
   /*#__PURE__*/ createUseReadContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: 'implementation',
+    functionName: 'dynamicQuorumVotes',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"pendingAdmin"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"erc20TokensToIncludeInFork"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const useReadNounsGovernorPendingAdmin =
+export const useReadNounsGovernorErc20TokensToIncludeInFork =
   /*#__PURE__*/ createUseReadContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: 'pendingAdmin',
+    functionName: 'erc20TokensToIncludeInFork',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkDAODeployer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkDaoDeployer =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkDAODeployer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkEndTimestamp"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkEndTimestamp =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkEndTimestamp',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkEscrow =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkEscrow',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkPeriod"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkPeriod',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkThreshold"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkThreshold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkThreshold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkThresholdBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorForkThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkThresholdBPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getActions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorGetActions =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'getActions',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getDynamicQuorumParamsAt"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorGetDynamicQuorumParamsAt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'getDynamicQuorumParamsAt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getReceipt"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorGetReceipt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'getReceipt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"lastMinuteWindowInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorLastMinuteWindowInBlocks =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'lastMinuteWindowInBlocks',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"latestProposalIds"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorLatestProposalIds =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'latestProposalIds',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"maxQuorumVotes"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMaxQuorumVotes =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'maxQuorumVotes',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"minQuorumVotes"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorMinQuorumVotes =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'minQuorumVotes',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"nouns"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorNouns = /*#__PURE__*/ createUseReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'nouns',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"numTokensInForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorNumTokensInForkEscrow =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'numTokensInForkEscrow',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"objectionPeriodDurationInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorObjectionPeriodDurationInBlocks =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'objectionPeriodDurationInBlocks',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"pendingVetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorPendingVetoer =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'pendingVetoer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalCount"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalCount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalCount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalDataForRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalDataForRewards =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalDataForRewards',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalMaxOperations"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalMaxOperations =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalMaxOperations',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalThreshold"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalThreshold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalThreshold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalThresholdBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalThresholdBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalThresholdBPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalUpdatablePeriodInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalUpdatablePeriodInBlocks =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalUpdatablePeriodInBlocks',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposals"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposals =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposals',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalsV3"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorProposalsV3 =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalsV3',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumParamsCheckpoints"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorQuorumParamsCheckpoints =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'quorumParamsCheckpoints',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumVotes"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorQuorumVotes =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'quorumVotes',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumVotesBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorQuorumVotesBps =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'quorumVotesBPS',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"state"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorState = /*#__PURE__*/ createUseReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'state',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"timelock"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorTimelock = /*#__PURE__*/ createUseReadContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'timelock',
+  },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"timelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorTimelockV1 =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'timelockV1',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"vetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorVetoer = /*#__PURE__*/ createUseReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'vetoer',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"voteSnapshotBlockSwitchProposalId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorVoteSnapshotBlockSwitchProposalId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'voteSnapshotBlockSwitchProposalId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"votingDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorVotingDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'votingDelay',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"votingPeriod"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useReadNounsGovernorVotingPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'votingPeriod',
   })
 
 /**
@@ -3547,16 +8595,314 @@ export const useWriteNounsGovernor = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"_setImplementation"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancel"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const useWriteNounsGovernorSetImplementation =
+export const useWriteNounsGovernorCancel = /*#__PURE__*/ createUseWriteContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'cancel',
+  },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancelSig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCancelSig =
   /*#__PURE__*/ createUseWriteContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: '_setImplementation',
+    functionName: 'cancelSig',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCastRefundableVote =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVote',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCastRefundableVoteWithReason =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCastVote =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVote',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteBySig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCastVoteBySig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorCastVoteWithReason =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"escrowToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorEscrowToFork =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'escrowToFork',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"execute"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorExecute =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'execute',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"executeFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorExecuteFork =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'executeFork',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"joinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorJoinFork =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'joinFork',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"propose"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorPropose =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'propose',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorProposeBySigs =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeBySigs',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorProposeOnTimelockV1 =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeOnTimelockV1',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"queue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorQueue = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'queue',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorUpdateProposal =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposal',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorUpdateProposalBySigs =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalBySigs',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalDescription"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorUpdateProposalDescription =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalDescription',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorUpdateProposalTransactions =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalTransactions',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"veto"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorVeto = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'veto',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowIncreasingTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorWithdrawDaoNounsFromEscrowIncreasingTotalSupply =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowIncreasingTotalSupply',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowToTreasury"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorWithdrawDaoNounsFromEscrowToTreasury =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowToTreasury',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWriteNounsGovernorWithdrawFromForkEscrow =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawFromForkEscrow',
   })
 
 /**
@@ -3570,16 +8916,315 @@ export const useSimulateNounsGovernor = /*#__PURE__*/ createUseSimulateContract(
 )
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"_setImplementation"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancel"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const useSimulateNounsGovernorSetImplementation =
+export const useSimulateNounsGovernorCancel =
   /*#__PURE__*/ createUseSimulateContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: '_setImplementation',
+    functionName: 'cancel',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancelSig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCancelSig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'cancelSig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCastRefundableVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCastRefundableVoteWithReason =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCastVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteBySig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCastVoteBySig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorCastVoteWithReason =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"escrowToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorEscrowToFork =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'escrowToFork',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"execute"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorExecute =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'execute',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"executeFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorExecuteFork =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'executeFork',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"joinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorJoinFork =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'joinFork',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"propose"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorPropose =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'propose',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorProposeBySigs =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeBySigs',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorProposeOnTimelockV1 =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeOnTimelockV1',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"queue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorQueue =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'queue',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorUpdateProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorUpdateProposalBySigs =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalBySigs',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalDescription"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorUpdateProposalDescription =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalDescription',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorUpdateProposalTransactions =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalTransactions',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"veto"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorVeto =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'veto',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowIncreasingTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorWithdrawDaoNounsFromEscrowIncreasingTotalSupply =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowIncreasingTotalSupply',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowToTreasury"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorWithdrawDaoNounsFromEscrowToTreasury =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowToTreasury',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useSimulateNounsGovernorWithdrawFromForkEscrow =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawFromForkEscrow',
   })
 
 /**
@@ -3592,6 +9237,162 @@ export const useWatchNounsGovernorEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"DAONounsSupplyIncreasedFromEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorDaoNounsSupplyIncreasedFromEscrowEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'DAONounsSupplyIncreasedFromEscrow',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"DAOWithdrawNounsFromEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorDaoWithdrawNounsFromEscrowEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'DAOWithdrawNounsFromEscrow',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ERC20TokensToIncludeInForkSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorErc20TokensToIncludeInForkSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ERC20TokensToIncludeInForkSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"EscrowedToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorEscrowedToForkEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'EscrowedToFork',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ExecuteFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorExecuteForkEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ExecuteFork',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkDAODeployerSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorForkDaoDeployerSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkDAODeployerSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkPeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorForkPeriodSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkPeriodSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkThresholdSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorForkThresholdSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkThresholdSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"JoinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorJoinForkEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'JoinFork',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"LastMinuteWindowSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorLastMinuteWindowSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'LastMinuteWindowSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"MaxQuorumVotesBPSSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorMaxQuorumVotesBpsSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'MaxQuorumVotesBPSSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"MinQuorumVotesBPSSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorMinQuorumVotesBpsSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'MinQuorumVotesBPSSet',
   })
 
 /**
@@ -3608,19 +9409,6 @@ export const useWatchNounsGovernorNewAdminEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewImplementation"`
- *
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
- */
-export const useWatchNounsGovernorNewImplementationEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: nounsGovernorAbi,
-    address: nounsGovernorAddress,
-    eventName: 'NewImplementation',
-  })
-
-/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewPendingAdmin"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3634,6 +9422,19 @@ export const useWatchNounsGovernorNewPendingAdminEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewPendingVetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorNewPendingVetoerEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'NewPendingVetoer',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewVetoer"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3644,6 +9445,19 @@ export const useWatchNounsGovernorNewVetoerEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'NewVetoer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ObjectionPeriodDurationSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorObjectionPeriodDurationSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ObjectionPeriodDurationSet',
   })
 
 /**
@@ -3673,6 +9487,19 @@ export const useWatchNounsGovernorProposalCreatedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalCreatedOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalCreatedOnTimelockV1Event =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalCreatedOnTimelockV1',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalCreatedWithRequirements"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3686,6 +9513,19 @@ export const useWatchNounsGovernorProposalCreatedWithRequirementsEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalDescriptionUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalDescriptionUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalDescriptionUpdated',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalExecuted"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3696,6 +9536,19 @@ export const useWatchNounsGovernorProposalExecutedEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'ProposalExecuted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalObjectionPeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalObjectionPeriodSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalObjectionPeriodSet',
   })
 
 /**
@@ -3725,6 +9578,45 @@ export const useWatchNounsGovernorProposalThresholdBpsSetEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalTransactionsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalTransactionsUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalTransactionsUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalUpdatablePeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalUpdatablePeriodSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalUpdatablePeriodSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorProposalUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalUpdated',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalVetoed"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3735,6 +9627,19 @@ export const useWatchNounsGovernorProposalVetoedEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'ProposalVetoed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"QuorumCoefficientSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorQuorumCoefficientSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'QuorumCoefficientSet',
   })
 
 /**
@@ -3751,6 +9656,45 @@ export const useWatchNounsGovernorQuorumVotesBpsSetEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"RefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorRefundableVoteEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'RefundableVote',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"SignatureCancelled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorSignatureCancelledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'SignatureCancelled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"TimelocksAndAdminSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorTimelocksAndAdminSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'TimelocksAndAdminSet',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"VoteCast"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -3761,6 +9705,19 @@ export const useWatchNounsGovernorVoteCastEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'VoteCast',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"VoteCastWithClientId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorVoteCastWithClientIdEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'VoteCastWithClientId',
   })
 
 /**
@@ -3787,6 +9744,32 @@ export const useWatchNounsGovernorVotingPeriodSetEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'VotingPeriodSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"Withdraw"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorWithdrawEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'Withdraw',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"WithdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const useWatchNounsGovernorWithdrawFromForkEscrowEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'WithdrawFromForkEscrow',
   })
 
 /**
@@ -4908,6 +10891,425 @@ export const useWatchNounsTokenTransferEvent =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasury = /*#__PURE__*/ createUseReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"GRACE_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryGracePeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'GRACE_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"MAXIMUM_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryMaximumDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'MAXIMUM_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"MINIMUM_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryMinimumDelay =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'MINIMUM_DELAY',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"NAME"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryName = /*#__PURE__*/ createUseReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'NAME',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"admin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryAdmin = /*#__PURE__*/ createUseReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'admin',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"delay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryDelay = /*#__PURE__*/ createUseReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'delay',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"pendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryPendingAdmin =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'pendingAdmin',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queuedTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useReadNounsTreasuryQueuedTransactions =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queuedTransactions',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasury = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"acceptAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryAcceptAdmin =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'acceptAdmin',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"cancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryCancelTransaction =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'cancelTransaction',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"executeTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryExecuteTransaction =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'executeTransaction',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryQueueTransaction =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queueTransaction',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendERC20"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasurySendErc20 =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendERC20',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasurySendEth =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendETH',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasurySetDelay =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setDelay',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasurySetPendingAdmin =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryUpgradeTo =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWriteNounsTreasuryUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasury = /*#__PURE__*/ createUseSimulateContract(
+  { abi: nounsTreasuryAbi, address: nounsTreasuryAddress },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"acceptAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryAcceptAdmin =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'acceptAdmin',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"cancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryCancelTransaction =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'cancelTransaction',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"executeTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryExecuteTransaction =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'executeTransaction',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryQueueTransaction =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queueTransaction',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendERC20"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasurySendErc20 =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendERC20',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasurySendEth =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendETH',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasurySetDelay =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setDelay',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasurySetPendingAdmin =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryUpgradeTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useSimulateNounsTreasuryUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
@@ -4946,6 +11348,110 @@ export const useWatchNounsTreasuryBeaconUpgradedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"CancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryCancelTransactionEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'CancelTransaction',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ERC20Sent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryErc20SentEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ERC20Sent',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ETHSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryEthSentEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ETHSent',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ExecuteTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryExecuteTransactionEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ExecuteTransaction',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryNewAdminEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewAdmin',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryNewDelayEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewDelay',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryNewPendingAdminEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"QueueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const useWatchNounsTreasuryQueueTransactionEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'QueueTransaction',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"Upgraded"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
@@ -4963,6 +11469,213 @@ export const useWatchNounsTreasuryUpgradedEvent =
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuction = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"MAX_TIME_BUFFER"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionMaxTimeBuffer = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'MAX_TIME_BUFFER',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"auction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionAuction = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'auction',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"auctionStorage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionAuctionStorage = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'auctionStorage',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"biddingClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionBiddingClient = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'biddingClient',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"duration"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionDuration = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'duration',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getPrices"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionGetPrices = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'getPrices',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getSettlements"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionGetSettlements = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'getSettlements',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"getSettlementsFromIdtoTimestamp"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionGetSettlementsFromIdtoTimestamp =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'getSettlementsFromIdtoTimestamp',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"minBidIncrementPercentage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionMinBidIncrementPercentage =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'minBidIncrementPercentage',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"nouns"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionNouns = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'nouns',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionOwner = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionPaused = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'paused',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"reservePrice"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionReservePrice = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'reservePrice',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"sanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionSanctionsOracle = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'sanctionsOracle',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"timeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionTimeBuffer = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'timeBuffer',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"weth"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const readNounsAuctionWeth = /*#__PURE__*/ createReadContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'weth',
+})
+
+/**
  * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
@@ -4974,65 +11687,182 @@ export const writeNounsAuction = /*#__PURE__*/ createWriteContract({
 })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"admin"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"createBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const writeNounsAuctionAdmin = /*#__PURE__*/ createWriteContract({
+export const writeNounsAuctionCreateBid = /*#__PURE__*/ createWriteContract({
   abi: nounsAuctionAbi,
   address: nounsAuctionAddress,
-  functionName: 'admin',
+  functionName: 'createBid',
 })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"changeAdmin"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"initialize"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const writeNounsAuctionChangeAdmin = /*#__PURE__*/ createWriteContract({
+export const writeNounsAuctionInitialize = /*#__PURE__*/ createWriteContract({
   abi: nounsAuctionAbi,
   address: nounsAuctionAddress,
-  functionName: 'changeAdmin',
+  functionName: 'initialize',
 })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"pause"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const writeNounsAuctionImplementation =
+export const writeNounsAuctionPause = /*#__PURE__*/ createWriteContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'pause',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionRenounceOwnership =
   /*#__PURE__*/ createWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'implementation',
+    functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeTo"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setMinBidIncrementPercentage"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const writeNounsAuctionUpgradeTo = /*#__PURE__*/ createWriteContract({
-  abi: nounsAuctionAbi,
-  address: nounsAuctionAddress,
-  functionName: 'upgradeTo',
-})
-
-/**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeToAndCall"`
- *
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
- */
-export const writeNounsAuctionUpgradeToAndCall =
+export const writeNounsAuctionSetMinBidIncrementPercentage =
   /*#__PURE__*/ createWriteContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeToAndCall',
+    functionName: 'setMinBidIncrementPercentage',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setPrices"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSetPrices = /*#__PURE__*/ createWriteContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'setPrices',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setReservePrice"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSetReservePrice =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setReservePrice',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setSanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSetSanctionsOracle =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setSanctionsOracle',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setTimeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSetTimeBuffer = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setTimeBuffer',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSettleAuction = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleAuction',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleCurrentAndCreateNewAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionSettleCurrentAndCreateNewAuction =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleCurrentAndCreateNewAuction',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionTransferOwnership =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionUnpause = /*#__PURE__*/ createWriteContract({
+  abi: nounsAuctionAbi,
+  address: nounsAuctionAddress,
+  functionName: 'unpause',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"warmUpSettlementState"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const writeNounsAuctionWarmUpSettlementState =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'warmUpSettlementState',
   })
 
 /**
@@ -5047,67 +11877,185 @@ export const simulateNounsAuction = /*#__PURE__*/ createSimulateContract({
 })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"admin"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"createBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const simulateNounsAuctionAdmin = /*#__PURE__*/ createSimulateContract({
+export const simulateNounsAuctionCreateBid =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'createBid',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionInitialize =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionPause = /*#__PURE__*/ createSimulateContract({
   abi: nounsAuctionAbi,
   address: nounsAuctionAddress,
-  functionName: 'admin',
+  functionName: 'pause',
 })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"changeAdmin"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"renounceOwnership"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const simulateNounsAuctionChangeAdmin =
+export const simulateNounsAuctionRenounceOwnership =
   /*#__PURE__*/ createSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'changeAdmin',
+    functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setMinBidIncrementPercentage"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const simulateNounsAuctionImplementation =
+export const simulateNounsAuctionSetMinBidIncrementPercentage =
   /*#__PURE__*/ createSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'implementation',
+    functionName: 'setMinBidIncrementPercentage',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeTo"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setPrices"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const simulateNounsAuctionUpgradeTo =
+export const simulateNounsAuctionSetPrices =
   /*#__PURE__*/ createSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeTo',
+    functionName: 'setPrices',
   })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setReservePrice"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const simulateNounsAuctionUpgradeToAndCall =
+export const simulateNounsAuctionSetReservePrice =
   /*#__PURE__*/ createSimulateContract({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    functionName: 'upgradeToAndCall',
+    functionName: 'setReservePrice',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setSanctionsOracle"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionSetSanctionsOracle =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setSanctionsOracle',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"setTimeBuffer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionSetTimeBuffer =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'setTimeBuffer',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionSettleAuction =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleAuction',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"settleCurrentAndCreateNewAuction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionSettleCurrentAndCreateNewAuction =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'settleCurrentAndCreateNewAuction',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionTransferOwnership =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionUnpause = /*#__PURE__*/ createSimulateContract(
+  {
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'unpause',
+  },
+)
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsAuctionAbi}__ and `functionName` set to `"warmUpSettlementState"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const simulateNounsAuctionWarmUpSettlementState =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    functionName: 'warmUpSettlementState',
   })
 
 /**
@@ -5122,42 +12070,800 @@ export const watchNounsAuctionEvent = /*#__PURE__*/ createWatchContractEvent({
 })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AdminChanged"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionBid"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const watchNounsAuctionAdminChangedEvent =
+export const watchNounsAuctionAuctionBidEvent =
   /*#__PURE__*/ createWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'AdminChanged',
+    eventName: 'AuctionBid',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"BeaconUpgraded"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionBidWithClientId"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const watchNounsAuctionBeaconUpgradedEvent =
+export const watchNounsAuctionAuctionBidWithClientIdEvent =
   /*#__PURE__*/ createWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'BeaconUpgraded',
+    eventName: 'AuctionBidWithClientId',
   })
 
 /**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Upgraded"`
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionCreated"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
  */
-export const watchNounsAuctionUpgradedEvent =
+export const watchNounsAuctionAuctionCreatedEvent =
   /*#__PURE__*/ createWatchContractEvent({
     abi: nounsAuctionAbi,
     address: nounsAuctionAddress,
-    eventName: 'Upgraded',
+    eventName: 'AuctionCreated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionExtended"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionExtendedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionExtended',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionMinBidIncrementPercentageUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionMinBidIncrementPercentageUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionMinBidIncrementPercentageUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionReservePriceUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionReservePriceUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionReservePriceUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionSettled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionSettledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionSettled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionSettledWithClientId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionSettledWithClientIdEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionSettledWithClientId',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"AuctionTimeBufferUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionAuctionTimeBufferUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'AuctionTimeBufferUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionOwnershipTransferredEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionPausedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'Paused',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"SanctionsOracleSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionSanctionsOracleSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'SanctionsOracleSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsAuctionAbi}__ and `eventName` set to `"Unpaused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x830bd73e4184cef73443c15111a1df14e495c706)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x488609b7113fcf3b761a05956300d605e8f6bcaf)
+ */
+export const watchNounsAuctionUnpausedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsAuctionAbi,
+    address: nounsAuctionAddress,
+    eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsData = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"PRIOR_VOTES_BLOCKS_AGO"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataPriorVotesBlocksAgo =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'PRIOR_VOTES_BLOCKS_AGO',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataCreateCandidateCost =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createCandidateCost',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"dunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataDunaAdmin = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'dunaAdmin',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"feeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataFeeRecipient = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'feeRecipient',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"nounsDao"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataNounsDao = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'nounsDao',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"nounsToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataNounsToken = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'nounsToken',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataOwner = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"propCandidates"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataPropCandidates = /*#__PURE__*/ createReadContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'propCandidates',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const readNounsDataUpdateCandidateCost =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsData = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"addSignature"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataAddSignature = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'addSignature',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"cancelProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataCancelProposalCandidate =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'cancelProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataCreateProposalCandidate =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataInitialize = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'initialize',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postDunaAdminMessage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataPostDunaAdminMessage =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postDunaAdminMessage',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postVoterMessageToDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataPostVoterMessageToDunaAdmin =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postVoterMessageToDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataRenounceOwnership =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendCandidateFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSendCandidateFeedback =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendCandidateFeedback',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSendFeedback = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'sendFeedback',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setCreateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSetCreateCandidateCost =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setCreateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSetDunaAdmin = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'setDunaAdmin',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setFeeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSetFeeRecipient = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'setFeeRecipient',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setUpdateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSetUpdateCandidateCost =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setUpdateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"signalProposalCompliance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataSignalProposalCompliance =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'signalProposalCompliance',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataTransferOwnership =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataUpdateProposalCandidate =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataUpgradeTo = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataUpgradeToAndCall = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'upgradeToAndCall',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"withdrawETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const writeNounsDataWithdrawEth = /*#__PURE__*/ createWriteContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'withdrawETH',
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsData = /*#__PURE__*/ createSimulateContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"addSignature"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataAddSignature =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'addSignature',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"cancelProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataCancelProposalCandidate =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'cancelProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"createProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataCreateProposalCandidate =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'createProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataInitialize = /*#__PURE__*/ createSimulateContract(
+  { abi: nounsDataAbi, address: nounsDataAddress, functionName: 'initialize' },
+)
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postDunaAdminMessage"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataPostDunaAdminMessage =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postDunaAdminMessage',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"postVoterMessageToDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataPostVoterMessageToDunaAdmin =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'postVoterMessageToDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataRenounceOwnership =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendCandidateFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSendCandidateFeedback =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendCandidateFeedback',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"sendFeedback"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSendFeedback =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'sendFeedback',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setCreateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSetCreateCandidateCost =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setCreateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setDunaAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSetDunaAdmin =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setDunaAdmin',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setFeeRecipient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSetFeeRecipient =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setFeeRecipient',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"setUpdateCandidateCost"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSetUpdateCandidateCost =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'setUpdateCandidateCost',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"signalProposalCompliance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataSignalProposalCompliance =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'signalProposalCompliance',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataTransferOwnership =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"updateProposalCandidate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataUpdateProposalCandidate =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'updateProposalCandidate',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataUpgradeTo = /*#__PURE__*/ createSimulateContract({
+  abi: nounsDataAbi,
+  address: nounsDataAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataUpgradeToAndCall =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsDataAbi}__ and `functionName` set to `"withdrawETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const simulateNounsDataWithdrawEth =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    functionName: 'withdrawETH',
   })
 
 /**
@@ -5198,6 +12904,188 @@ export const watchNounsDataBeaconUpgradedEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"CandidateFeedbackSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataCandidateFeedbackSentEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'CandidateFeedbackSent',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"CreateCandidateCostSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataCreateCandidateCostSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'CreateCandidateCostSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"DunaAdminMessagePosted"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataDunaAdminMessagePostedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'DunaAdminMessagePosted',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"DunaAdminSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataDunaAdminSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'DunaAdminSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ETHWithdrawn"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataEthWithdrawnEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ETHWithdrawn',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"FeeRecipientSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataFeeRecipientSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'FeeRecipientSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"FeedbackSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataFeedbackSentEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'FeedbackSent',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataOwnershipTransferredEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateCanceled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataProposalCandidateCanceledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateCanceled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateCreated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataProposalCandidateCreatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateCreated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalCandidateUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataProposalCandidateUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalCandidateUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"ProposalComplianceSignaled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataProposalComplianceSignaledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'ProposalComplianceSignaled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"SignatureAdded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataSignatureAddedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'SignatureAdded',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"UpdateCandidateCostSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataUpdateCandidateCostSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'UpdateCandidateCostSet',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"Upgraded"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
@@ -5208,6 +13096,19 @@ export const watchNounsDataUpgradedEvent =
     abi: nounsDataAbi,
     address: nounsDataAddress,
     eventName: 'Upgraded',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsDataAbi}__ and `eventName` set to `"VoterMessageToDunaAdminPosted"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xf790a5f59678dd733fb3de93493a91f472ca1365)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9040f720aa8a693f950b9cf94764b4b06079d002)
+ */
+export const watchNounsDataVoterMessageToDunaAdminPostedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsDataAbi,
+    address: nounsDataAddress,
+    eventName: 'VoterMessageToDunaAdminPosted',
   })
 
 /**
@@ -6369,6 +14270,99 @@ export const readNounsGovernor = /*#__PURE__*/ createReadContract({
 })
 
 /**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_PROPOSAL_THRESHOLD_BPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMaxProposalThresholdBps =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_VOTING_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMaxVotingDelay = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_VOTING_DELAY',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MAX_VOTING_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMaxVotingPeriod =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MAX_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_PROPOSAL_THRESHOLD_BPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMinProposalThresholdBps =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_PROPOSAL_THRESHOLD_BPS',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_VOTING_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMinVotingDelay = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_VOTING_DELAY',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"MIN_VOTING_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMinVotingPeriod =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'MIN_VOTING_PERIOD',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"adjustedTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorAdjustedTotalSupply =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'adjustedTotalSupply',
+  })
+
+/**
  * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"admin"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6381,29 +14375,470 @@ export const readNounsGovernorAdmin = /*#__PURE__*/ createReadContract({
 })
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"implementation"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"dynamicQuorumVotes"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const readNounsGovernorImplementation = /*#__PURE__*/ createReadContract(
+export const readNounsGovernorDynamicQuorumVotes =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'dynamicQuorumVotes',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"erc20TokensToIncludeInFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorErc20TokensToIncludeInFork =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'erc20TokensToIncludeInFork',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkDAODeployer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkDaoDeployer =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkDAODeployer',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkEndTimestamp"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkEndTimestamp =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkEndTimestamp',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkEscrow = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'forkEscrow',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkPeriod"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkPeriod = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'forkPeriod',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkThreshold"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkThreshold = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'forkThreshold',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"forkThresholdBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorForkThresholdBps =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'forkThresholdBPS',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getActions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorGetActions = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'getActions',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getDynamicQuorumParamsAt"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorGetDynamicQuorumParamsAt =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'getDynamicQuorumParamsAt',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"getReceipt"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorGetReceipt = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'getReceipt',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"lastMinuteWindowInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorLastMinuteWindowInBlocks =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'lastMinuteWindowInBlocks',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"latestProposalIds"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorLatestProposalIds =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'latestProposalIds',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"maxQuorumVotes"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorMaxQuorumVotes = /*#__PURE__*/ createReadContract(
   {
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: 'implementation',
+    functionName: 'maxQuorumVotes',
   },
 )
 
 /**
- * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"pendingAdmin"`
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"minQuorumVotes"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const readNounsGovernorPendingAdmin = /*#__PURE__*/ createReadContract({
+export const readNounsGovernorMinQuorumVotes = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'minQuorumVotes',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"nouns"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorNouns = /*#__PURE__*/ createReadContract({
   abi: nounsGovernorAbi,
   address: nounsGovernorAddress,
-  functionName: 'pendingAdmin',
+  functionName: 'nouns',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"numTokensInForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorNumTokensInForkEscrow =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'numTokensInForkEscrow',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"objectionPeriodDurationInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorObjectionPeriodDurationInBlocks =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'objectionPeriodDurationInBlocks',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"pendingVetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorPendingVetoer = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'pendingVetoer',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalCount"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalCount = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'proposalCount',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalDataForRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalDataForRewards =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalDataForRewards',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalMaxOperations"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalMaxOperations =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalMaxOperations',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalThreshold"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalThreshold =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalThreshold',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalThresholdBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalThresholdBps =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalThresholdBPS',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalUpdatablePeriodInBlocks"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalUpdatablePeriodInBlocks =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposalUpdatablePeriodInBlocks',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposals"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposals = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'proposals',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposalsV3"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorProposalsV3 = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'proposalsV3',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumParamsCheckpoints"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorQuorumParamsCheckpoints =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'quorumParamsCheckpoints',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumVotes"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorQuorumVotes = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'quorumVotes',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"quorumVotesBPS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorQuorumVotesBps = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'quorumVotesBPS',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"state"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorState = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'state',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"timelock"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorTimelock = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'timelock',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"timelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorTimelockV1 = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'timelockV1',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"vetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorVetoer = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'vetoer',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"voteSnapshotBlockSwitchProposalId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorVoteSnapshotBlockSwitchProposalId =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'voteSnapshotBlockSwitchProposalId',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"votingDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorVotingDelay = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'votingDelay',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"votingPeriod"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const readNounsGovernorVotingPeriod = /*#__PURE__*/ createReadContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'votingPeriod',
 })
 
 /**
@@ -6418,16 +14853,306 @@ export const writeNounsGovernor = /*#__PURE__*/ createWriteContract({
 })
 
 /**
- * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"_setImplementation"`
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancel"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const writeNounsGovernorSetImplementation =
+export const writeNounsGovernorCancel = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'cancel',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancelSig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCancelSig = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'cancelSig',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCastRefundableVote =
   /*#__PURE__*/ createWriteContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: '_setImplementation',
+    functionName: 'castRefundableVote',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCastRefundableVoteWithReason =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCastVote = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'castVote',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteBySig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCastVoteBySig =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorCastVoteWithReason =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"escrowToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorEscrowToFork = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'escrowToFork',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"execute"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorExecute = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'execute',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"executeFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorExecuteFork = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'executeFork',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorInitialize = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'initialize',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"joinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorJoinFork = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'joinFork',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"propose"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorPropose = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'propose',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorProposeBySigs =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeBySigs',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorProposeOnTimelockV1 =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeOnTimelockV1',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"queue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorQueue = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'queue',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorUpdateProposal =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposal',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorUpdateProposalBySigs =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalBySigs',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalDescription"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorUpdateProposalDescription =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalDescription',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorUpdateProposalTransactions =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalTransactions',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"veto"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorVeto = /*#__PURE__*/ createWriteContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'veto',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowIncreasingTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorWithdrawDaoNounsFromEscrowIncreasingTotalSupply =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowIncreasingTotalSupply',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowToTreasury"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorWithdrawDaoNounsFromEscrowToTreasury =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowToTreasury',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const writeNounsGovernorWithdrawFromForkEscrow =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawFromForkEscrow',
   })
 
 /**
@@ -6442,16 +15167,314 @@ export const simulateNounsGovernor = /*#__PURE__*/ createSimulateContract({
 })
 
 /**
- * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"_setImplementation"`
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancel"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
  * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
  */
-export const simulateNounsGovernorSetImplementation =
+export const simulateNounsGovernorCancel = /*#__PURE__*/ createSimulateContract(
+  {
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'cancel',
+  },
+)
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"cancelSig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCancelSig =
   /*#__PURE__*/ createSimulateContract({
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
-    functionName: '_setImplementation',
+    functionName: 'cancelSig',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCastRefundableVote =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVote',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castRefundableVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCastRefundableVoteWithReason =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castRefundableVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCastVote =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVote',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteBySig"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCastVoteBySig =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteBySig',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"castVoteWithReason"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorCastVoteWithReason =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'castVoteWithReason',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"escrowToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorEscrowToFork =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'escrowToFork',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"execute"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorExecute =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'execute',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"executeFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorExecuteFork =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'executeFork',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorInitialize =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"joinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorJoinFork =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'joinFork',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"propose"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorPropose =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'propose',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorProposeBySigs =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeBySigs',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"proposeOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorProposeOnTimelockV1 =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'proposeOnTimelockV1',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"queue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorQueue = /*#__PURE__*/ createSimulateContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'queue',
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorUpdateProposal =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposal',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalBySigs"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorUpdateProposalBySigs =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalBySigs',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalDescription"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorUpdateProposalDescription =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalDescription',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"updateProposalTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorUpdateProposalTransactions =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'updateProposalTransactions',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"veto"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorVeto = /*#__PURE__*/ createSimulateContract({
+  abi: nounsGovernorAbi,
+  address: nounsGovernorAddress,
+  functionName: 'veto',
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowIncreasingTotalSupply"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorWithdrawDaoNounsFromEscrowIncreasingTotalSupply =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowIncreasingTotalSupply',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawDAONounsFromEscrowToTreasury"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorWithdrawDaoNounsFromEscrowToTreasury =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawDAONounsFromEscrowToTreasury',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsGovernorAbi}__ and `functionName` set to `"withdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const simulateNounsGovernorWithdrawFromForkEscrow =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    functionName: 'withdrawFromForkEscrow',
   })
 
 /**
@@ -6466,6 +15489,162 @@ export const watchNounsGovernorEvent = /*#__PURE__*/ createWatchContractEvent({
 })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"DAONounsSupplyIncreasedFromEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorDaoNounsSupplyIncreasedFromEscrowEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'DAONounsSupplyIncreasedFromEscrow',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"DAOWithdrawNounsFromEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorDaoWithdrawNounsFromEscrowEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'DAOWithdrawNounsFromEscrow',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ERC20TokensToIncludeInForkSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorErc20TokensToIncludeInForkSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ERC20TokensToIncludeInForkSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"EscrowedToFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorEscrowedToForkEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'EscrowedToFork',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ExecuteFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorExecuteForkEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ExecuteFork',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkDAODeployerSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorForkDaoDeployerSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkDAODeployerSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkPeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorForkPeriodSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkPeriodSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ForkThresholdSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorForkThresholdSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ForkThresholdSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"JoinFork"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorJoinForkEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'JoinFork',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"LastMinuteWindowSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorLastMinuteWindowSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'LastMinuteWindowSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"MaxQuorumVotesBPSSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorMaxQuorumVotesBpsSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'MaxQuorumVotesBPSSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"MinQuorumVotesBPSSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorMinQuorumVotesBpsSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'MinQuorumVotesBPSSet',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewAdmin"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6476,19 +15655,6 @@ export const watchNounsGovernorNewAdminEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'NewAdmin',
-  })
-
-/**
- * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewImplementation"`
- *
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
- */
-export const watchNounsGovernorNewImplementationEvent =
-  /*#__PURE__*/ createWatchContractEvent({
-    abi: nounsGovernorAbi,
-    address: nounsGovernorAddress,
-    eventName: 'NewImplementation',
   })
 
 /**
@@ -6505,6 +15671,19 @@ export const watchNounsGovernorNewPendingAdminEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewPendingVetoer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorNewPendingVetoerEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'NewPendingVetoer',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"NewVetoer"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6515,6 +15694,19 @@ export const watchNounsGovernorNewVetoerEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'NewVetoer',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ObjectionPeriodDurationSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorObjectionPeriodDurationSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ObjectionPeriodDurationSet',
   })
 
 /**
@@ -6544,6 +15736,19 @@ export const watchNounsGovernorProposalCreatedEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalCreatedOnTimelockV1"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalCreatedOnTimelockV1Event =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalCreatedOnTimelockV1',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalCreatedWithRequirements"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6557,6 +15762,19 @@ export const watchNounsGovernorProposalCreatedWithRequirementsEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalDescriptionUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalDescriptionUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalDescriptionUpdated',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalExecuted"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6567,6 +15785,19 @@ export const watchNounsGovernorProposalExecutedEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'ProposalExecuted',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalObjectionPeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalObjectionPeriodSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalObjectionPeriodSet',
   })
 
 /**
@@ -6596,6 +15827,45 @@ export const watchNounsGovernorProposalThresholdBpsSetEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalTransactionsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalTransactionsUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalTransactionsUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalUpdatablePeriodSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalUpdatablePeriodSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalUpdatablePeriodSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorProposalUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'ProposalUpdated',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"ProposalVetoed"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6606,6 +15876,19 @@ export const watchNounsGovernorProposalVetoedEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'ProposalVetoed',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"QuorumCoefficientSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorQuorumCoefficientSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'QuorumCoefficientSet',
   })
 
 /**
@@ -6622,6 +15905,45 @@ export const watchNounsGovernorQuorumVotesBpsSetEvent =
   })
 
 /**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"RefundableVote"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorRefundableVoteEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'RefundableVote',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"SignatureCancelled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorSignatureCancelledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'SignatureCancelled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"TimelocksAndAdminSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorTimelocksAndAdminSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'TimelocksAndAdminSet',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"VoteCast"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
@@ -6632,6 +15954,19 @@ export const watchNounsGovernorVoteCastEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'VoteCast',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"VoteCastWithClientId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorVoteCastWithClientIdEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'VoteCastWithClientId',
   })
 
 /**
@@ -6658,6 +15993,32 @@ export const watchNounsGovernorVotingPeriodSetEvent =
     abi: nounsGovernorAbi,
     address: nounsGovernorAddress,
     eventName: 'VotingPeriodSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"Withdraw"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorWithdrawEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'Withdraw',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsGovernorAbi}__ and `eventName` set to `"WithdrawFromForkEscrow"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x6f3e6272a167e8accb32072d08e0957f9c79223d)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x35d2670d7c8931aacdd37c89ddcb0638c3c44a57)
+ */
+export const watchNounsGovernorWithdrawFromForkEscrowEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsGovernorAbi,
+    address: nounsGovernorAddress,
+    eventName: 'WithdrawFromForkEscrow',
   })
 
 /**
@@ -7746,6 +17107,416 @@ export const watchNounsTokenTransferEvent =
   })
 
 /**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasury = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"GRACE_PERIOD"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryGracePeriod = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'GRACE_PERIOD',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"MAXIMUM_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryMaximumDelay = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'MAXIMUM_DELAY',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"MINIMUM_DELAY"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryMinimumDelay = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'MINIMUM_DELAY',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"NAME"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryName = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'NAME',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"admin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryAdmin = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'admin',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"delay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryDelay = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'delay',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"pendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryPendingAdmin = /*#__PURE__*/ createReadContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'pendingAdmin',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queuedTransactions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const readNounsTreasuryQueuedTransactions =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queuedTransactions',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasury = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"acceptAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryAcceptAdmin = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'acceptAdmin',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"cancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryCancelTransaction =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'cancelTransaction',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"executeTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryExecuteTransaction =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'executeTransaction',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryInitialize = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'initialize',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryQueueTransaction =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queueTransaction',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendERC20"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasurySendErc20 = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'sendERC20',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasurySendEth = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'sendETH',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasurySetDelay = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'setDelay',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasurySetPendingAdmin =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryUpgradeTo = /*#__PURE__*/ createWriteContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+  functionName: 'upgradeTo',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const writeNounsTreasuryUpgradeToAndCall =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasury = /*#__PURE__*/ createSimulateContract({
+  abi: nounsTreasuryAbi,
+  address: nounsTreasuryAddress,
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"acceptAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryAcceptAdmin =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'acceptAdmin',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"cancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryCancelTransaction =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'cancelTransaction',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"executeTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryExecuteTransaction =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'executeTransaction',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryInitialize =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"queueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryQueueTransaction =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'queueTransaction',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendERC20"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasurySendErc20 =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendERC20',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"sendETH"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasurySendEth =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'sendETH',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasurySetDelay =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setDelay',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"setPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasurySetPendingAdmin =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'setPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryUpgradeTo =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const simulateNounsTreasuryUpgradeToAndCall =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
  * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
@@ -7780,6 +17551,110 @@ export const watchNounsTreasuryBeaconUpgradedEvent =
     abi: nounsTreasuryAbi,
     address: nounsTreasuryAddress,
     eventName: 'BeaconUpgraded',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"CancelTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryCancelTransactionEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'CancelTransaction',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ERC20Sent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryErc20SentEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ERC20Sent',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ETHSent"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryEthSentEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ETHSent',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"ExecuteTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryExecuteTransactionEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'ExecuteTransaction',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryNewAdminEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewAdmin',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewDelay"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryNewDelayEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewDelay',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"NewPendingAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryNewPendingAdminEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'NewPendingAdmin',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsTreasuryAbi}__ and `eventName` set to `"QueueTransaction"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xb1a32fc9f9d8b2cf86c068cae13108809547ef71)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x07e5d6a1550ad5e597a9b0698a474aa080a2fb28)
+ */
+export const watchNounsTreasuryQueueTransactionEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsTreasuryAbi,
+    address: nounsTreasuryAddress,
+    eventName: 'QueueTransaction',
   })
 
 /**
