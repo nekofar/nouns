@@ -54,6 +54,7 @@ export default defineConfig({
           },
         },
       ],
+      tryFetchProxyImplementation: true,
     }),
     react(),
     actions(),

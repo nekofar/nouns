@@ -1,6 +1,6 @@
 {
   "name": "@nekofar/nouns",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "private": false,
   "description": "TypeScript client for interacting with Nouns",
   "keywords": [
@@ -27,15 +27,15 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "./subgraphs": {
-      "types": "./dist/subgraphs/index.d.ts",
-      "import": "./dist/subgraphs/index.mjs",
-      "require": "./dist/subgraphs/index.cjs"
-    },
     "./contracts": {
       "types": "./dist/contracts/index.d.ts",
       "import": "./dist/contracts/index.mjs",
       "require": "./dist/contracts/index.cjs"
+    },
+    "./subgraphs": {
+      "types": "./dist/subgraphs/index.d.ts",
+      "import": "./dist/subgraphs/index.mjs",
+      "require": "./dist/subgraphs/index.cjs"
     }
   },
   "main": "./dist/index.cjs",
@@ -48,7 +48,7 @@
   ],
   "scripts": {
     "prebuild": "pnpm clean && pnpm graphql:generate && pnpm wagmi:generate",
-    "build": "tsup",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" tsup",
     "clean": "rimraf dist",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
