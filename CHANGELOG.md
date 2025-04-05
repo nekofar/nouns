@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.3] - 2025-04-05
+
+### 🚀 Features
+
+- *(config)* Enable `tryFetchProxyImplementation`
+- *(contracts)* Enhance contract definitions and events
+- *(tsconfig)* Enable `emitDeclarationOnly` option
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Increase memory for `build` script
+- *(build)* Update `dts` configuration in build script
+
 ## [1.0.0-alpha.2] - 2025-04-05
 
 ### 🐛 Bug Fixes
