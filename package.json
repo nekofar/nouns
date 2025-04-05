@@ -27,15 +27,15 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "./subgraphs": {
-      "types": "./dist/subgraphs/index.d.ts",
-      "import": "./dist/subgraphs/index.mjs",
-      "require": "./dist/subgraphs/index.cjs"
-    },
     "./contracts": {
       "types": "./dist/contracts/index.d.ts",
       "import": "./dist/contracts/index.mjs",
       "require": "./dist/contracts/index.cjs"
+    },
+    "./subgraphs": {
+      "types": "./dist/subgraphs/index.d.ts",
+      "import": "./dist/subgraphs/index.mjs",
+      "require": "./dist/subgraphs/index.cjs"
     }
   },
   "main": "./dist/index.cjs",
