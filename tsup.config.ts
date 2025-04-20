@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: ['src/**/*.ts'],
-  format: ['esm', 'cjs'],
+  format: ['esm'],
   dts: {
     resolve: false,
     compilerOptions: {
@@ -17,10 +17,10 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   sourcemap: true,
-  minify: "terser",
+  minify: 'terser',
   terserOptions: {
     format: {
       comments: false,
     },
-  }
+  },
 })
