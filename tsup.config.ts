@@ -4,7 +4,7 @@ export default defineConfig({
   entry: ['src/**/*.ts'],
   format: ['esm', 'cjs'],
   dts: {
-    resolve: true,
+    resolve: false,
     compilerOptions: {
       declarationMap: false,
     },
