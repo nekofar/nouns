@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.5] - 2025-04-20
+
+### 🚀 Features
+
+- *(tsup)* Enable sourcemap generation
+- *(build)* Enable terser minification and remove comments
+
+### 🚜 Refactor
+
+- *(tsup)* Simplify `entry` configuration
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Disable dts resolution in tsup config
+- *(build)* Remove `cjs` format from build output
+
 ## [1.0.0-alpha.4] - 2025-04-20
 
 ### 🚜 Refactor
