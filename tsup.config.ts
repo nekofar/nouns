@@ -17,4 +17,10 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   sourcemap: true,
+  minify: "terser",
+  terserOptions: {
+    format: {
+      comments: false,
+    },
+  }
 })
