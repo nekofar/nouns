@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.4] - 2025-04-20
+
+### 🚜 Refactor
+
+- *(tsup)* Remove `external` and `noExternal` config
+
 ## [1.0.0-alpha.3] - 2025-04-05
 
 ### 🚀 Features
