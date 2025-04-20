@@ -1,11 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: {
-    index: 'src/index.ts',
-    'contracts/index': 'src/contracts/index.ts',
-    'subgraphs/index': 'src/subgraphs/index.ts',
-  },
+  entry: ['src/**/*.ts'],
   format: ['esm', 'cjs'],
   dts: {
     resolve: true,
