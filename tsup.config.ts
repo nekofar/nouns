@@ -1,8 +1,8 @@
-import { defineConfig } from 'tsup'
+import { defineConfig, Options } from 'tsup'
 
-export default defineConfig({
+const tsupConfig: Options = {
   entry: ['src/**/*.ts'],
-  format: ['esm'],
+  format: 'esm',
   dts: {
     resolve: false,
     compilerOptions: {
@@ -10,9 +10,6 @@ export default defineConfig({
     },
   },
   outDir: 'dist',
-  outExtension({ format }) {
-    return { js: format === 'esm' ? '.mjs' : '.cjs' }
-  },
   splitting: false,
   clean: true,
   treeshake: true,
@@ -23,4 +20,6 @@ export default defineConfig({
       comments: false,
     },
   },
-})
+}
+
+export default defineConfig(tsupConfig)
