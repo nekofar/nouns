@@ -40,7 +40,7 @@ export default defineConfig({
           },
         },
         {
-          name: 'NounsAuction',
+          name: 'NounsAuctionHouse',
           address: {
             [mainnet.id]: '0x830bd73e4184cef73443c15111a1df14e495c706',
             [sepolia.id]: '0x488609b7113fcf3b761a05956300d605e8f6bcaf',
