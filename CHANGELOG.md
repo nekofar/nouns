@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.8] - 2025-04-21
+
+### 🐛 Bug Fixes
+
+- *(config)* Update `NounsAuction` to `NounsAuctionHouse`
+
+### 🚜 Refactor
+
+- *(contracts)* Rename `nounsAuction` to `nounsAuctionHouse`
+
 ## [1.0.0-alpha.7] - 2025-04-20
 
 ### ⚙️ Miscellaneous Tasks
