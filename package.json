@@ -55,10 +55,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm build",
-    "test": "echo 'No tests available.' && exit 0",
+    "test": "vitest run",
     "wagmi:generate": "wagmi generate"
   },
-  "dependencies": {},
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.12.16",
     "@eslint/js": "^9.25.0",
