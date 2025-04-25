@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.9] - 2025-04-25
+
+### 🧪 Testing
+
+- *(src)* Add unit test for `version` export
+
+### ⚙️ Miscellaneous Tasks
+
+- *(config)* Exclude test files from build
+
 ## [1.0.0-alpha.8] - 2025-04-21
 
 ### 🐛 Bug Fixes
