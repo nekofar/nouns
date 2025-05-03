@@ -1,5 +1,6 @@
 # Nouns
 
+[![NPM version](https://img.shields.io/npm/v/@nekofar/nouns.svg)](https://www.npmjs.com/package/@nekofar/nouns)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/nekofar/nouns?include_prereleases)](https://github.com/nekofar/nouns/releases)
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/nekofar/nouns/build.yml)](https://github.com/nekofar/nouns/actions/workflows/build.yml)
 [![GitHub](https://img.shields.io/github/license/nekofar/nouns)](https://github.com/nekofar/nouns/blob/master/LICENSE)
