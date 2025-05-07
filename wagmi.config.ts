@@ -10,6 +10,7 @@ export default defineConfig({
     etherscan({
       apiKey: process.env.ETHERSCAN_API_KEY!,
       chainId: mainnet.id,
+      cacheDuration: 86_400_000,
       contracts: [
         {
           name: 'NounsGovernor',

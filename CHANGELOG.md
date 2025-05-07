@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.11] - 2025-05-07
+
+### 📚 Documentation
+
+- *(readme)* Add npm version badge
+
+### ⚙️ Miscellaneous Tasks
+
+- *(workflows)* Cache wagmi ABI cache in build workflow
+- *(wagmi)* Add `cacheDuration` for Etherscan configuration
+
 ## [1.0.0-alpha.10] - 2025-05-03
 
 ### ⚙️ Miscellaneous Tasks
