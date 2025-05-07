@@ -46,6 +46,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Cache wagmi ABI cache
+        uses: actions/cache@v4.2.3
+        with:
+          path: ~/.wagmi-cli/plugins/cache
+          key: ${{ runner.os }}-wagmi-cache-${{ hashFiles('**/wagmi.config.ts') }}
+
       # Installs all dependencies specified in the project's package.json file.
       - name: Install dependencies using pnpm
         run: pnpm install
