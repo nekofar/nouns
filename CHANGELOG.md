@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.14] - 2025-05-10
+
+### 🐛 Bug Fixes
+
+- *(scripts)* Adjust `prebuild` logic for CI environments
+
 ## [1.0.0-alpha.13] - 2025-05-10
 
 ### 🐛 Bug Fixes
