@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.12] - 2025-05-10
+
+### 🚀 Features
+
+- *(wagmi)* Add new contracts to configuration
+- *(contracts)* Add `nounsPayer`, `nounsStreamFactory`, and `nounsTokenBuyer` configs
+
 ## [1.0.0-alpha.11] - 2025-05-07
 
 ### 📚 Documentation
