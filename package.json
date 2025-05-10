@@ -1,6 +1,6 @@
 {
   "name": "@nekofar/nouns",
-  "version": "1.0.0-alpha.13",
+  "version": "1.0.0-alpha.14",
   "private": false,
   "description": "TypeScript client for interacting with Nouns",
   "keywords": [
@@ -46,7 +46,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "prebuild": "is-ci || pnpm clean && pnpm graphql:generate && pnpm wagmi:generate",
+    "prebuild": "is-ci && exit 0 || (pnpm clean && pnpm graphql:generate && pnpm wagmi:generate)",
     "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" tsup",
     "clean": "rimraf dist",
     "format": "prettier --write .",
