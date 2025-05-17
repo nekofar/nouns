@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.15] - 2025-05-17
+
+### 🚀 Features
+
+- *(config)* Add `NounsClientRewards` contract details
+- *(contracts)* Add `nounsClientRewardsAbi` support
+
 ## [1.0.0-alpha.14] - 2025-05-10
 
 ### 🐛 Bug Fixes
