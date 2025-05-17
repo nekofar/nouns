@@ -75,6 +75,13 @@ export default defineConfig({
             [sepolia.id]: '0x821176470cFeF1dB78F1e2dbae136f73c36ddd48',
           },
         },
+        {
+          name: 'NounsClientRewards',
+          address: {
+            [mainnet.id]: '0x883860178F95d0C82413eDc1D6De530cB4771d55',
+            [sepolia.id]: '0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32',
+          },
+        },
       ],
       tryFetchProxyImplementation: true,
     }),
