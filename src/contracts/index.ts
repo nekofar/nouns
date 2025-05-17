@@ -634,6 +634,963 @@ export const nounsAuctionHouseConfig = {
 } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NounsClientRewards
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const nounsClientRewardsAbi = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: 'nounsDAO_', internalType: 'address', type: 'address' },
+      { name: 'auctionHouse_', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  { type: 'error', inputs: [], name: 'LastNounIdMustBeHigher' },
+  { type: 'error', inputs: [], name: 'LastNounIdMustBeSettled' },
+  { type: 'error', inputs: [], name: 'OnlyNFTOwner' },
+  { type: 'error', inputs: [], name: 'OnlyOwnerOrAdmin' },
+  { type: 'error', inputs: [], name: 'RewardsDisabled' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
+        name: 'newAdmin',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'AdminChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [],
+    name: 'AuctionRewardsDisabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nextAuctionIdToReward',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionRewardsEnabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'firstAuctionId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'lastAuctionId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'AuctionRewardsUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'beacon',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'BeaconUpgraded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ClientApprovalSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'to', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'ClientBalanceWithdrawal',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+      { name: 'name', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ClientRegistered',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ClientRewarded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'clientId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: true,
+      },
+      { name: 'name', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'description',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'ClientUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Paused',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [],
+    name: 'ProposalRewardsDisabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'nextProposalIdToReward',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'nextProposalRewardFirstAuctionId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalRewardsEnabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'firstProposalId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'lastProposalId',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'firstAuctionIdForRevenue',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'lastAuctionIdForRevenue',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'auctionRevenue',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'rewardPerProposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'rewardPerVote',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ProposalRewardsUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'Unpaused',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'implementation',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'Upgraded',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'RewardsStorageLocation',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'admin',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'auctionHouse',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract INounsAuctionHouseV2',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'auctionRewardsEnabled',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'clientId', internalType: 'uint32', type: 'uint32' }],
+    name: 'clientBalance',
+    outputs: [{ name: '', internalType: 'uint96', type: 'uint96' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint32', type: 'uint32' }],
+    name: 'clientMetadata',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct INounsClientTokenTypes.ClientMetadata',
+        type: 'tuple',
+        components: [
+          { name: 'approved', internalType: 'bool', type: 'bool' },
+          { name: 'rewarded', internalType: 'uint96', type: 'uint96' },
+          { name: 'withdrawn', internalType: 'uint96', type: 'uint96' },
+          { name: '__gap', internalType: 'uint56', type: 'uint56' },
+          { name: 'name', internalType: 'string', type: 'string' },
+          { name: 'description', internalType: 'string', type: 'string' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'descriptor',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'disableAuctionRewards',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'disableProposalRewards',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'enableAuctionRewards',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'enableProposalRewards',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'ethToken',
+    outputs: [{ name: '', internalType: 'contract IERC20', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'firstNounId', internalType: 'uint256', type: 'uint256' },
+      { name: 'endTimestamp', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getAuctionRevenue',
+    outputs: [
+      { name: 'sumRevenue', internalType: 'uint256', type: 'uint256' },
+      { name: 'lastAuctionId', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getAuctionRewardParams',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct Rewards.AuctionRewardParams',
+        type: 'tuple',
+        components: [
+          { name: 'auctionRewardBps', internalType: 'uint16', type: 'uint16' },
+          {
+            name: 'minimumAuctionsBetweenUpdates',
+            internalType: 'uint8',
+            type: 'uint8',
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getProposalRewardParams',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct Rewards.ProposalRewardParams',
+        type: 'tuple',
+        components: [
+          {
+            name: 'minimumRewardPeriod',
+            internalType: 'uint32',
+            type: 'uint32',
+          },
+          {
+            name: 'numProposalsEnoughForReward',
+            internalType: 'uint8',
+            type: 'uint8',
+          },
+          { name: 'proposalRewardBps', internalType: 'uint16', type: 'uint16' },
+          { name: 'votingRewardBps', internalType: 'uint16', type: 'uint16' },
+          {
+            name: 'proposalEligibilityQuorumBps',
+            internalType: 'uint16',
+            type: 'uint16',
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'lastProposalId', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'getVotingClientIds',
+    outputs: [{ name: '', internalType: 'uint32[]', type: 'uint32[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'admin_', internalType: 'address', type: 'address' },
+      { name: 'ethToken_', internalType: 'address', type: 'address' },
+      { name: 'descriptor_', internalType: 'address', type: 'address' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastProposalRewardsUpdate',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nextAuctionIdToReward',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nextProposalIdToReward',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nextProposalRewardFirstAuctionId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nextTokenId',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nounsDAO',
+    outputs: [
+      { name: '', internalType: 'contract INounsDAOLogic', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'paused',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalRewardsEnabled',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'name', internalType: 'string', type: 'string' },
+      { name: 'description', internalType: 'string', type: 'string' },
+    ],
+    name: 'registerClient',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newAdmin', internalType: 'address', type: 'address' }],
+    name: 'setAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newParams',
+        internalType: 'struct Rewards.AuctionRewardParams',
+        type: 'tuple',
+        components: [
+          { name: 'auctionRewardBps', internalType: 'uint16', type: 'uint16' },
+          {
+            name: 'minimumAuctionsBetweenUpdates',
+            internalType: 'uint8',
+            type: 'uint8',
+          },
+        ],
+      },
+    ],
+    name: 'setAuctionRewardParams',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setClientApproval',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'descriptor_', internalType: 'address', type: 'address' }],
+    name: 'setDescriptor',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newToken', internalType: 'address', type: 'address' }],
+    name: 'setETHToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newParams',
+        internalType: 'struct Rewards.ProposalRewardParams',
+        type: 'tuple',
+        components: [
+          {
+            name: 'minimumRewardPeriod',
+            internalType: 'uint32',
+            type: 'uint32',
+          },
+          {
+            name: 'numProposalsEnoughForReward',
+            internalType: 'uint8',
+            type: 'uint8',
+          },
+          { name: 'proposalRewardBps', internalType: 'uint16', type: 'uint16' },
+          { name: 'votingRewardBps', internalType: 'uint16', type: 'uint16' },
+          {
+            name: 'proposalEligibilityQuorumBps',
+            internalType: 'uint16',
+            type: 'uint16',
+          },
+        ],
+      },
+    ],
+    name: 'setProposalRewardParams',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'unpause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'tokenId', internalType: 'uint32', type: 'uint32' },
+      { name: 'name', internalType: 'string', type: 'string' },
+      { name: 'description', internalType: 'string', type: 'string' },
+    ],
+    name: 'updateClientMetadata',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'lastNounId', internalType: 'uint32', type: 'uint32' }],
+    name: 'updateRewardsForAuctions',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'lastProposalId', internalType: 'uint32', type: 'uint32' },
+      { name: 'votingClientIds', internalType: 'uint32[]', type: 'uint32[]' },
+    ],
+    name: 'updateRewardsForProposalWritingAndVoting',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+    ],
+    name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'newImplementation', internalType: 'address', type: 'address' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'upgradeToAndCall',
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'clientId', internalType: 'uint32', type: 'uint32' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint96', type: 'uint96' },
+    ],
+    name: 'withdrawClientBalance',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'token', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'withdrawToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const nounsClientRewardsAddress = {
+  1: '0x883860178F95d0C82413eDc1D6De530cB4771d55',
+  11155111: '0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32',
+} as const
+
+/**
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const nounsClientRewardsConfig = {
+  address: nounsClientRewardsAddress,
+  abi: nounsClientRewardsAbi,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NounsData
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -7018,6 +7975,1391 @@ export const useWatchNounsAuctionHouseUnpausedEvent =
     abi: nounsAuctionHouseAbi,
     address: nounsAuctionHouseAddress,
     eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewards = /*#__PURE__*/ createUseReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"RewardsStorageLocation"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsRewardsStorageLocation =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'RewardsStorageLocation',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"admin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsAdmin =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'admin',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"auctionHouse"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsAuctionHouse =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'auctionHouse',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"auctionRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsAuctionRewardsEnabled =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'auctionRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"balanceOf"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"clientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsClientBalance =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'clientBalance',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"clientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsClientMetadata =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'clientMetadata',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"descriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsDescriptor =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'descriptor',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"ethToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsEthToken =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'ethToken',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getApproved"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsGetApproved =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getApproved',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getAuctionRevenue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsGetAuctionRevenue =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getAuctionRevenue',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsGetAuctionRewardParams =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsGetProposalRewardParams =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getVotingClientIds"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsGetVotingClientIds =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getVotingClientIds',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"isApprovedForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsIsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"lastProposalRewardsUpdate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsLastProposalRewardsUpdate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'lastProposalRewardsUpdate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"name"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsName =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'name',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextAuctionIdToReward"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsNextAuctionIdToReward =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextAuctionIdToReward',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextProposalIdToReward"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsNextProposalIdToReward =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextProposalIdToReward',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextProposalRewardFirstAuctionId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsNextProposalRewardFirstAuctionId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextProposalRewardFirstAuctionId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextTokenId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsNextTokenId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextTokenId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nounsDAO"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsNounsDao =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nounsDAO',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsOwner =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'owner',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"ownerOf"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsOwnerOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'ownerOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsPaused =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'paused',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"proposalRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsProposalRewardsEnabled =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'proposalRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"supportsInterface"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"symbol"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsSymbol =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'symbol',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"tokenURI"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useReadNounsClientRewardsTokenUri =
+  /*#__PURE__*/ createUseReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'tokenURI',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewards = /*#__PURE__*/ createUseWriteContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"approve"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsApprove =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsDisableAuctionRewards =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsDisableProposalRewards =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsEnableAuctionRewards =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsEnableProposalRewards =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsPause =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'pause',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"registerClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsRegisterClient =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'registerClient',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"safeTransferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetAdmin =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAdmin',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetAuctionRewardParams =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setClientApproval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetClientApproval =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setClientApproval',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setDescriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetDescriptor =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setDescriptor',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setETHToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetEthToken =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setETHToken',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsSetProposalRewardParams =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUnpause =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'unpause',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateClientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUpdateClientMetadata =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateClientMetadata',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForAuctions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUpdateRewardsForAuctions =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForAuctions',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForProposalWritingAndVoting"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUpdateRewardsForProposalWritingAndVoting =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForProposalWritingAndVoting',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUpgradeTo =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsUpgradeToAndCall =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawClientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsWithdrawClientBalance =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawClientBalance',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWriteNounsClientRewardsWithdrawToken =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawToken',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewards =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"approve"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsDisableAuctionRewards =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsDisableProposalRewards =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsEnableAuctionRewards =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsEnableProposalRewards =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsPause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'pause',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"registerClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsRegisterClient =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'registerClient',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"safeTransferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetAdmin =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAdmin',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetAuctionRewardParams =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setClientApproval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetClientApproval =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setClientApproval',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setDescriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetDescriptor =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setDescriptor',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setETHToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetEthToken =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setETHToken',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsSetProposalRewardParams =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUnpause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'unpause',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateClientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUpdateClientMetadata =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateClientMetadata',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForAuctions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUpdateRewardsForAuctions =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForAuctions',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForProposalWritingAndVoting"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUpdateRewardsForProposalWritingAndVoting =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForProposalWritingAndVoting',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUpgradeTo =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsUpgradeToAndCall =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawClientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsWithdrawClientBalance =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawClientBalance',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useSimulateNounsClientRewardsWithdrawToken =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawToken',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AdminChanged"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsAdminChangedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AdminChanged',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Approval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsDisabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsAuctionRewardsDisabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsDisabled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsAuctionRewardsEnabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsAuctionRewardsUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"BeaconUpgraded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsBeaconUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'BeaconUpgraded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientApprovalSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsClientApprovalSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientApprovalSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientBalanceWithdrawal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsClientBalanceWithdrawalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientBalanceWithdrawal',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientRegistered"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsClientRegisteredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientRegistered',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientRewarded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsClientRewardedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientRewarded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsClientUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsPausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Paused',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsDisabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsProposalRewardsDisabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsDisabled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsProposalRewardsEnabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsProposalRewardsUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Transfer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Unpaused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsUnpausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Upgraded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const useWatchNounsClientRewardsUpgradedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Upgraded',
   })
 
 /**
@@ -14630,6 +16972,1383 @@ export const watchNounsAuctionHouseUnpausedEvent =
     abi: nounsAuctionHouseAbi,
     address: nounsAuctionHouseAddress,
     eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewards = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"RewardsStorageLocation"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsRewardsStorageLocation =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'RewardsStorageLocation',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"admin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsAdmin = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'admin',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"auctionHouse"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsAuctionHouse =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'auctionHouse',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"auctionRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsAuctionRewardsEnabled =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'auctionRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"balanceOf"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsBalanceOf = /*#__PURE__*/ createReadContract(
+  {
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'balanceOf',
+  },
+)
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"clientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsClientBalance =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'clientBalance',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"clientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsClientMetadata =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'clientMetadata',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"descriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsDescriptor =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'descriptor',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"ethToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsEthToken = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'ethToken',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getApproved"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsGetApproved =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getApproved',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getAuctionRevenue"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsGetAuctionRevenue =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getAuctionRevenue',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsGetAuctionRewardParams =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsGetProposalRewardParams =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"getVotingClientIds"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsGetVotingClientIds =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'getVotingClientIds',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"isApprovedForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsIsApprovedForAll =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"lastProposalRewardsUpdate"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsLastProposalRewardsUpdate =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'lastProposalRewardsUpdate',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"name"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsName = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextAuctionIdToReward"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsNextAuctionIdToReward =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextAuctionIdToReward',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextProposalIdToReward"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsNextProposalIdToReward =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextProposalIdToReward',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextProposalRewardFirstAuctionId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsNextProposalRewardFirstAuctionId =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextProposalRewardFirstAuctionId',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nextTokenId"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsNextTokenId =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'nextTokenId',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"nounsDAO"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsNounsDao = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'nounsDAO',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"owner"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsOwner = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"ownerOf"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsOwnerOf = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'ownerOf',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsPaused = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'paused',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"proposalRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsProposalRewardsEnabled =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'proposalRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"supportsInterface"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsSupportsInterface =
+  /*#__PURE__*/ createReadContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"symbol"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsSymbol = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link readContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"tokenURI"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const readNounsClientRewardsTokenUri = /*#__PURE__*/ createReadContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'tokenURI',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewards = /*#__PURE__*/ createWriteContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"approve"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsApprove = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'approve',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsDisableAuctionRewards =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsDisableProposalRewards =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsEnableAuctionRewards =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsEnableProposalRewards =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsInitialize =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsPause = /*#__PURE__*/ createWriteContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+  functionName: 'pause',
+})
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"registerClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsRegisterClient =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'registerClient',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsRenounceOwnership =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"safeTransferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSafeTransferFrom =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetAdmin =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAdmin',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetApprovalForAll =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetAuctionRewardParams =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setClientApproval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetClientApproval =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setClientApproval',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setDescriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetDescriptor =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setDescriptor',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setETHToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetEthToken =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setETHToken',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsSetProposalRewardParams =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsTransferFrom =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsTransferOwnership =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUnpause = /*#__PURE__*/ createWriteContract(
+  {
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'unpause',
+  },
+)
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateClientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUpdateClientMetadata =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateClientMetadata',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForAuctions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUpdateRewardsForAuctions =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForAuctions',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForProposalWritingAndVoting"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUpdateRewardsForProposalWritingAndVoting =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForProposalWritingAndVoting',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUpgradeTo =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsUpgradeToAndCall =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawClientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsWithdrawClientBalance =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawClientBalance',
+  })
+
+/**
+ * Wraps __{@link writeContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const writeNounsClientRewardsWithdrawToken =
+  /*#__PURE__*/ createWriteContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawToken',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewards = /*#__PURE__*/ createSimulateContract({
+  abi: nounsClientRewardsAbi,
+  address: nounsClientRewardsAddress,
+})
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"approve"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsApprove =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsDisableAuctionRewards =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"disableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsDisableProposalRewards =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'disableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableAuctionRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsEnableAuctionRewards =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableAuctionRewards',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"enableProposalRewards"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsEnableProposalRewards =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'enableProposalRewards',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"initialize"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsInitialize =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"pause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsPause =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'pause',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"registerClient"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsRegisterClient =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'registerClient',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsRenounceOwnership =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"safeTransferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSafeTransferFrom =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAdmin"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetAdmin =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAdmin',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetApprovalForAll =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setAuctionRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetAuctionRewardParams =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setAuctionRewardParams',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setClientApproval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetClientApproval =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setClientApproval',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setDescriptor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetDescriptor =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setDescriptor',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setETHToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetEthToken =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setETHToken',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"setProposalRewardParams"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsSetProposalRewardParams =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'setProposalRewardParams',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferFrom"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsTransferFrom =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsTransferOwnership =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"unpause"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUnpause =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'unpause',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateClientMetadata"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUpdateClientMetadata =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateClientMetadata',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForAuctions"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUpdateRewardsForAuctions =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForAuctions',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"updateRewardsForProposalWritingAndVoting"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUpdateRewardsForProposalWritingAndVoting =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'updateRewardsForProposalWritingAndVoting',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeTo"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUpgradeTo =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeTo',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"upgradeToAndCall"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsUpgradeToAndCall =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'upgradeToAndCall',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawClientBalance"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsWithdrawClientBalance =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawClientBalance',
+  })
+
+/**
+ * Wraps __{@link simulateContract}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `functionName` set to `"withdrawToken"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const simulateNounsClientRewardsWithdrawToken =
+  /*#__PURE__*/ createSimulateContract({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    functionName: 'withdrawToken',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AdminChanged"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsAdminChangedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AdminChanged',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Approval"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsApprovalEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ApprovalForAll"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsApprovalForAllEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsDisabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsAuctionRewardsDisabledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsDisabled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsAuctionRewardsEnabledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"AuctionRewardsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsAuctionRewardsUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'AuctionRewardsUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"BeaconUpgraded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsBeaconUpgradedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'BeaconUpgraded',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientApprovalSet"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsClientApprovalSetEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientApprovalSet',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientBalanceWithdrawal"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsClientBalanceWithdrawalEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientBalanceWithdrawal',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientRegistered"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsClientRegisteredEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientRegistered',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientRewarded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsClientRewardedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientRewarded',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ClientUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsClientUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ClientUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsOwnershipTransferredEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Paused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsPausedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Paused',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsDisabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsProposalRewardsDisabledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsDisabled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsEnabled"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsProposalRewardsEnabledEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsEnabled',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"ProposalRewardsUpdated"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsProposalRewardsUpdatedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'ProposalRewardsUpdated',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Transfer"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsTransferEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Unpaused"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsUnpausedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Unpaused',
+  })
+
+/**
+ * Wraps __{@link watchContractEvent}__ with `abi` set to __{@link nounsClientRewardsAbi}__ and `eventName` set to `"Upgraded"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x883860178F95d0C82413eDc1D6De530cB4771d55)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x7Cc7bf1479A5E41b61B26B99792D2f685BF3Ca32)
+ */
+export const watchNounsClientRewardsUpgradedEvent =
+  /*#__PURE__*/ createWatchContractEvent({
+    abi: nounsClientRewardsAbi,
+    address: nounsClientRewardsAddress,
+    eventName: 'Upgraded',
   })
 
 /**
