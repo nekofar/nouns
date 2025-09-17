@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha.17] - 2025-09-17
+
+### ⚙️ Miscellaneous Tasks
+
+- *(gitignore)* Remove `pnpm-lock.yaml` from ignored files
+- *(workflows)* Simplify caching in GitHub Actions
+
 ## [1.0.0-alpha.16] - 2025-07-20
 
 ### 🐛 Bug Fixes
