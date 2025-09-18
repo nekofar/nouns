@@ -98,7 +98,7 @@ importers:
         version: 61.0.2(eslint@9.35.0(jiti@2.4.2))
       globals:
         specifier: ^16.0.0
-        version: 16.0.0
+        version: 16.4.0
       graphql-scalars:
         specifier: ^1.24.2
         version: 1.24.2(graphql@16.10.0)
@@ -2966,10 +2966,6 @@ packages:
 
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
-    engines: {node: '>=18'}
-
-  globals@16.0.0:
-    resolution: {integrity: sha512-iInW14XItCXET01CQFqudPOWP2jYMl7T+QRQT+UNcR/iQncN/F0UNpgd76iFkBPgNQb4+X3LV9tLJYzwh+Gl3A==}
     engines: {node: '>=18'}
 
   globals@16.4.0:
@@ -8359,8 +8355,6 @@ snapshots:
   globals@11.12.0: {}
 
   globals@14.0.0: {}
-
-  globals@16.0.0: {}
 
   globals@16.4.0: {}
 
