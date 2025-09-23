@@ -85,8 +85,8 @@ importers:
         specifier: ^10.1.2
         version: 10.1.8(eslint@9.36.0(jiti@2.4.2))
       eslint-plugin-jsdoc:
-        specifier: ^59.0.2
-        version: 59.0.2(eslint@9.36.0(jiti@2.4.2))
+        specifier: ^60.2.0
+        version: 60.2.0(eslint@9.36.0(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: ^5.2.6
         version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.36.0(jiti@2.4.2)))(eslint@9.36.0(jiti@2.4.2))(prettier@3.6.2)
@@ -2669,8 +2669,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-jsdoc@59.0.2:
-    resolution: {integrity: sha512-VZuXTN0RCt70SMa0vVoyX0kq9c6j/A9c3u66U3jsSC5juabbXSILK6pfmJMSItIPnOMYQbVFSpo22Mzpsm36bw==}
+  eslint-plugin-jsdoc@60.2.0:
+    resolution: {integrity: sha512-VQNycH0EbjIvgdX6llnLidv7X/yQTJMoQl/L5bXAPasAlPZQFJQi7r5OLc29ushbeQJ7+BFf8UFt9JAQNBZhXg==}
     engines: {node: '>=20.11.0'}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -5357,7 +5357,7 @@ snapshots:
   '@es-joy/jsdoccomment@0.58.0':
     dependencies:
       '@types/estree': 1.0.8
-      '@typescript-eslint/types': 8.44.0
+      '@typescript-eslint/types': 8.44.1
       comment-parser: 1.4.1
       esquery: 1.6.0
       jsdoc-type-pratt-parser: 5.4.0
@@ -8095,7 +8095,7 @@ snapshots:
     dependencies:
       eslint: 9.36.0(jiti@2.4.2)
 
-  eslint-plugin-jsdoc@59.0.2(eslint@9.36.0(jiti@2.4.2)):
+  eslint-plugin-jsdoc@60.2.0(eslint@9.36.0(jiti@2.4.2)):
     dependencies:
       '@es-joy/jsdoccomment': 0.58.0
       are-docs-informative: 0.0.2
