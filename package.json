@@ -108,5 +108,8 @@
   "packageManager": "pnpm@10.5.2",
   "publishConfig": {
     "access": "public"
+  },
+  "resolutions": {
+    "sha.js": ">= 2.4.12"
   }
 }
