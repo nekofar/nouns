@@ -58,6 +58,11 @@
     "test": "vitest run",
     "wagmi:generate": "wagmi generate"
   },
+  "resolutions": {
+    "@metamask/sdk": ">=0.33.1",
+    "@metamask/sdk-communication-layer": ">=0.33.1",
+    "sha.js": ">= 2.4.12"
+  },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.12.16",
     "@eslint/js": "^9.25.0",
@@ -108,8 +113,5 @@
   "packageManager": "pnpm@10.5.2",
   "publishConfig": {
     "access": "public"
-  },
-  "resolutions": {
-    "sha.js": ">= 2.4.12"
   }
 }
