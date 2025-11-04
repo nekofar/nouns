@@ -23,21 +23,22 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     },
     "./contracts": {
-      "import": "./dist/contracts/index.js",
-      "types": "./dist/contracts/index.d.ts"
+      "import": "./dist/contracts/index.mjs",
+      "require": "./dist/contracts/index.cjs"
     },
     "./subgraphs": {
-      "import": "./dist/subgraphs/index.js",
-      "types": "./dist/subgraphs/index.d.ts"
-    }
+      "import": "./dist/subgraphs/index.mjs",
+      "require": "./dist/subgraphs/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
   "files": [
     "dist/**",
     "src/**/*.ts",
