@@ -1,3 +1,11 @@
+## [1.0.0-alpha.25] - 2025-11-04
+
+### 🚜 Refactor
+
+- *(build)* Replace `tsup` with `tsdown`
+- *(build)* Replace `tsup` with `tsdown`
+- *(build)* Update `build` script to use `tsdown`
+- *(build)* Update `exports` for ESM and CJS support
 ## [1.0.0-alpha.24] - 2025-10-21
 
 ### 🐛 Bug Fixes
