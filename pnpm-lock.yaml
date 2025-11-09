@@ -125,9 +125,6 @@ importers:
       rimraf:
         specifier: ^6.0.1
         version: 6.1.0
-      terser:
-        specifier: ^5.39.0
-        version: 5.44.1
       tsdown:
         specifier: ^0.16.0
         version: 0.16.0(typescript@5.9.3)
@@ -6170,6 +6167,7 @@ snapshots:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
+    optional: true
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
@@ -7520,7 +7518,8 @@ snapshots:
     dependencies:
       node-int64: 0.4.0
 
-  buffer-from@1.1.2: {}
+  buffer-from@1.1.2:
+    optional: true
 
   buffer@6.0.3:
     dependencies:
@@ -7664,7 +7663,8 @@ snapshots:
 
   colorette@2.0.20: {}
 
-  commander@2.20.3: {}
+  commander@2.20.3:
+    optional: true
 
   comment-parser@1.4.1: {}
 
@@ -9503,8 +9503,10 @@ snapshots:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
+    optional: true
 
-  source-map@0.6.1: {}
+  source-map@0.6.1:
+    optional: true
 
   spdx-exceptions@2.5.0: {}
 
@@ -9602,6 +9604,7 @@ snapshots:
       acorn: 8.15.0
       commander: 2.20.3
       source-map-support: 0.5.21
+    optional: true
 
   thread-stream@0.15.2:
     dependencies:
