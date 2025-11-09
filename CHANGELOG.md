@@ -1,3 +1,8 @@
+## [1.0.0-alpha.26] - 2025-11-09
+
+### 🐛 Bug Fixes
+
+- Solve some minor issues and update dependencies
 ## [1.0.0-alpha.25] - 2025-11-04
 
 ### 🚜 Refactor
