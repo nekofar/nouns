@@ -110,7 +110,7 @@
     "viem": "^2.27.2",
     "wagmi": "^2.14.16"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.21.0",
   "publishConfig": {
     "access": "public"
   }
