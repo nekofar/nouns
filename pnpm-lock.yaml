@@ -91,7 +91,7 @@ importers:
         version: 10.1.8(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-jsdoc:
         specifier: ^61.0.1
-        version: 61.2.0(eslint@9.39.1(jiti@2.6.1))
+        version: 61.2.1(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-prettier:
         specifier: ^5.2.6
         version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.6.2)
@@ -1830,6 +1830,10 @@ packages:
     resolution: {integrity: sha512-USjyxm3gQEePdUwJBFjjGNG18xY9A2grDVGuk7/9AkjIF1L+ZrVnwR5VAU5JXtUnBL/Nwt3H31KlRDaksnM7/w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@typescript-eslint/types@8.47.0':
+    resolution: {integrity: sha512-nHAE6bMKsizhA2uuYZbEbmp5z2UpffNrPEqiKIeN7VsV6UY/roxanWfoRrf6x/k9+Obf+GQdkm0nPU+vnMXo9A==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
   '@typescript-eslint/typescript-estree@8.46.4':
     resolution: {integrity: sha512-7oV2qEOr1d4NWNmpXLR35LvCfOkTNymY9oyW+lUHkmCno7aOmIf/hMaydnJBUTBMRCOGZh8YjkFOc8dadEoNGA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2640,8 +2644,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-jsdoc@61.2.0:
-    resolution: {integrity: sha512-Pky3YKWPOcDGi4TzBZlp/ENd+z443uVgIyZxzA9wVbfECjG1ptf7sB8gzSX4Z8dAtoD8d3d68jsLuAfxr+8qyQ==}
+  eslint-plugin-jsdoc@61.2.1:
+    resolution: {integrity: sha512-Htacti3dbkNm4rlp/Bk9lqhv+gi6US9jyN22yaJ42G6wbteiTbNLChQwi25jr/BN+NOzDWhZHvCDdrhX0F8dXQ==}
     engines: {node: '>=20.11.0'}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -5140,7 +5144,7 @@ snapshots:
   '@es-joy/jsdoccomment@0.76.0':
     dependencies:
       '@types/estree': 1.0.8
-      '@typescript-eslint/types': 8.46.4
+      '@typescript-eslint/types': 8.47.0
       comment-parser: 1.4.1
       esquery: 1.6.0
       jsdoc-type-pratt-parser: 6.10.0
@@ -6727,6 +6731,8 @@ snapshots:
 
   '@typescript-eslint/types@8.46.4': {}
 
+  '@typescript-eslint/types@8.47.0': {}
+
   '@typescript-eslint/typescript-estree@8.46.4(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/project-service': 8.46.4(typescript@5.9.3)
@@ -7858,7 +7864,7 @@ snapshots:
     dependencies:
       eslint: 9.39.1(jiti@2.6.1)
 
-  eslint-plugin-jsdoc@61.2.0(eslint@9.39.1(jiti@2.6.1)):
+  eslint-plugin-jsdoc@61.2.1(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       '@es-joy/jsdoccomment': 0.76.0
       '@es-joy/resolve.exports': 1.2.0
