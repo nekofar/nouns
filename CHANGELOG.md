@@ -1,3 +1,8 @@
+## [1.0.0-alpha.34] - 2025-12-15
+
+### ⚙️ Miscellaneous Tasks
+
+- *(config)* Reorder exports and update pnpm
 ## [1.0.0-alpha.33] - 2025-12-05
 
 ### 🐛 Bug Fixes
