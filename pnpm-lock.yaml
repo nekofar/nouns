@@ -126,8 +126,8 @@ importers:
         specifier: ^6.0.1
         version: 6.1.2
       tsdown:
-        specifier: ^0.17.0
-        version: 0.17.4(synckit@0.11.11)(typescript@5.9.3)
+        specifier: ^0.18.0
+        version: 0.18.0(synckit@0.11.11)(typescript@5.9.3)
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
@@ -4195,8 +4195,8 @@ packages:
   ts-log@2.2.7:
     resolution: {integrity: sha512-320x5Ggei84AxzlXp91QkIGSw5wgaLT6GeAH0KsqDmRZdVWW2OiSeVvElVoatk3f7nicwXlElXsoFkARiGE2yg==}
 
-  tsdown@0.17.4:
-    resolution: {integrity: sha512-z+kNuv1rwM1POQIufDUVrdNc/uGy0ueRVafCyDH39IdHxin4JXgB8DNGSPoqdIpcOpqUoRbNreK8NxENFmlhKw==}
+  tsdown@0.18.0:
+    resolution: {integrity: sha512-Yotdh3NzizysnqR96xfpHFYtEntk1cZvSRHz8A+Pn3ZHNdTQa4fBQxh6HHzWZwfjdQv47xb7GCv6vEWMtxBirw==}
     engines: {node: '>=20.19.0'}
     deprecated: Including an unexpected breaking change (copy behavior)
     hasBin: true
@@ -9586,7 +9586,7 @@ snapshots:
 
   ts-log@2.2.7: {}
 
-  tsdown@0.17.4(synckit@0.11.11)(typescript@5.9.3):
+  tsdown@0.18.0(synckit@0.11.11)(typescript@5.9.3):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
