@@ -1,6 +1,6 @@
 {
   "name": "@nekofar/nouns",
-  "version": "1.0.0-alpha.35",
+  "version": "1.0.0-alpha.36",
   "private": false,
   "description": "TypeScript client for interacting with Nouns",
   "keywords": [
@@ -113,5 +113,9 @@
   "packageManager": "pnpm@10.25.0",
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": "^24",
+    "pnpm": "^10"
   }
 }
